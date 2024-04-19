@@ -1,0 +1,11 @@
+connexion >= 2.6.0
+connexion[swagger-ui] >= 2.6.0
+python_dateutil == 2.6.0
+setuptools >= 21.0.0
+swagger-ui-bundle >= 0.0.2
+scapy==2.5.0
+cryptography==40.0.2
+cffi==1.15.1
+pycparser==2.21
+dnslib==0.9.23
+flask

@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  ue-manager:
+          container_name: ue-id-api
+          restart: always
+          image: ue-id-api:latest
+          volumes: 
+              - ./etc/config.yaml:/app/etc/config.yaml
+          networks:
+              cn5g-net:
+                  ipv4_address: 192.168.70.140
+
+networks:
+  cn5g-net:
+    name: demo-oai-public-net
+    external: true

@@ -1,0 +1,102 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module northbound</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>northbound</strong></big></big></font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/achraf/Downloads/ue-identity-service-master/CN_SDK/northbound.py">/home/achraf/Downloads/ue-identity-service-master/CN_SDK/northbound.py</a></font></td></tr></table>
+    <p><tt>This&nbsp;module&nbsp;represents&nbsp;an&nbsp;SDK&nbsp;related&nbsp;to&nbsp;THE&nbsp;5G&nbsp;Core&nbsp;Network.</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="docker.html">docker</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="requests.html">requests</a><br>
+<a href="subprocess.html">subprocess</a><br>
+</td><td width="25%" valign=top><a href="time.html">time</a><br>
+<a href="uuid.html">uuid</a><br>
+</td><td width="25%" valign=top><a href="yaml.html">yaml</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-START_OAI_RFSIM5G"><strong>START_OAI_RFSIM5G</strong></a>()</dt></dl>
+ <dl><dt><a name="-add_UEs"><strong>add_UEs</strong></a>(nb_UES)</dt><dd><tt>Deploys&nbsp;a&nbsp;specified&nbsp;number&nbsp;of&nbsp;User&nbsp;Equipment&nbsp;(UE)&nbsp;containers.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;deploys&nbsp;the&nbsp;specified&nbsp;number&nbsp;of&nbsp;UE&nbsp;containers&nbsp;using&nbsp;Docker&nbsp;Compose.<br>
+It&nbsp;checks&nbsp;the&nbsp;existing&nbsp;containers,&nbsp;and&nbsp;if&nbsp;the&nbsp;number&nbsp;of&nbsp;UEs&nbsp;to&nbsp;deploy&nbsp;is&nbsp;within<br>
+the&nbsp;range&nbsp;of&nbsp;available&nbsp;UE&nbsp;names,&nbsp;it&nbsp;starts&nbsp;the&nbsp;deployment.<br>
+&nbsp;<br>
+:param&nbsp;nb_UES:&nbsp;The&nbsp;number&nbsp;of&nbsp;UE&nbsp;containers&nbsp;to&nbsp;deploy.<br>
+:type&nbsp;nb_UES:&nbsp;int</tt></dd></dl>
+ <dl><dt><a name="-get_registered_UEs"><strong>get_registered_UEs</strong></a>()</dt><dd><tt>Retrieves&nbsp;registered&nbsp;users&nbsp;from&nbsp;the&nbsp;MongoDB&nbsp;collections.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;connects&nbsp;to&nbsp;the&nbsp;MongoDB&nbsp;database&nbsp;and&nbsp;retrieves&nbsp;users&nbsp;from&nbsp;the<br>
+'amf_notifications'&nbsp;collection.&nbsp;It&nbsp;extracts&nbsp;information&nbsp;such&nbsp;as&nbsp;SUPI,&nbsp;RAN&nbsp;UE&nbsp;NGAP&nbsp;ID,<br>
+and&nbsp;RM&nbsp;State&nbsp;for&nbsp;each&nbsp;user.<br>
+&nbsp;<br>
+:return:&nbsp;A&nbsp;list&nbsp;of&nbsp;dictionaries&nbsp;containing&nbsp;user&nbsp;information.<br>
+:rtype:&nbsp;list</tt></dd></dl>
+ <dl><dt><a name="-get_ue_status_by_imsi"><strong>get_ue_status_by_imsi</strong></a>(imsi)</dt><dd><tt>Retrieves&nbsp;the&nbsp;status&nbsp;of&nbsp;a&nbsp;registered&nbsp;UE&nbsp;by&nbsp;its&nbsp;IMSI.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;takes&nbsp;the&nbsp;IMSI&nbsp;of&nbsp;a&nbsp;UE&nbsp;as&nbsp;input&nbsp;and&nbsp;returns&nbsp;its&nbsp;status,&nbsp;if<br>
+the&nbsp;UE&nbsp;is&nbsp;registered.&nbsp;If&nbsp;the&nbsp;IMSI&nbsp;is&nbsp;not&nbsp;found&nbsp;in&nbsp;the&nbsp;database,&nbsp;it&nbsp;returns<br>
+'UE&nbsp;not&nbsp;found'.<br>
+&nbsp;<br>
+:param&nbsp;imsi:&nbsp;The&nbsp;IMSI&nbsp;(International&nbsp;Mobile&nbsp;Subscriber&nbsp;Identity)&nbsp;of&nbsp;the&nbsp;UE.<br>
+:type&nbsp;imsi:&nbsp;str<br>
+:return:&nbsp;The&nbsp;status&nbsp;of&nbsp;the&nbsp;UE&nbsp;or&nbsp;'UE&nbsp;not&nbsp;found'&nbsp;if&nbsp;IMSI&nbsp;is&nbsp;not&nbsp;found.<br>
+:rtype:&nbsp;str</tt></dd></dl>
+ <dl><dt><a name="-registerCallBackRegisteredUEs"><strong>registerCallBackRegisteredUEs</strong></a>()</dt><dd><tt>Retrieves&nbsp;registered&nbsp;users&nbsp;from&nbsp;the&nbsp;MongoDB&nbsp;collections&nbsp;continuously&nbsp;for&nbsp;5&nbsp;minutes.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;connects&nbsp;to&nbsp;the&nbsp;MongoDB&nbsp;database&nbsp;and&nbsp;retrieves&nbsp;users&nbsp;from&nbsp;the<br>
+'amf_notifications'&nbsp;collection.&nbsp;It&nbsp;extracts&nbsp;information&nbsp;such&nbsp;as&nbsp;SUPI,&nbsp;RAN&nbsp;UE&nbsp;NGAP&nbsp;ID,<br>
+and&nbsp;RM&nbsp;State&nbsp;for&nbsp;each&nbsp;user.<br>
+&nbsp;<br>
+:return:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-registerCallBackUEStatus"><strong>registerCallBackUEStatus</strong></a>()</dt><dd><tt>Retrieves&nbsp;and&nbsp;prints&nbsp;existing&nbsp;UE&nbsp;information&nbsp;with&nbsp;the&nbsp;latest&nbsp;timestamp&nbsp;from&nbsp;the&nbsp;MongoDB&nbsp;collection.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;connects&nbsp;to&nbsp;the&nbsp;MongoDB&nbsp;database&nbsp;and&nbsp;retrieves&nbsp;UE&nbsp;information<br>
+from&nbsp;the&nbsp;'amf_notifications'&nbsp;collection.&nbsp;It&nbsp;prints&nbsp;the&nbsp;information&nbsp;for&nbsp;each&nbsp;UE<br>
+with&nbsp;the&nbsp;latest&nbsp;timestamp&nbsp;in&nbsp;dictionary&nbsp;format.<br>
+&nbsp;<br>
+:return:&nbsp;None</tt></dd></dl>
+ <dl><dt><a name="-registerNF"><strong>registerNF</strong></a>(NF, ip)</dt><dd><tt>Registers&nbsp;a&nbsp;Network&nbsp;Function&nbsp;(NF)&nbsp;with&nbsp;its&nbsp;corresponding&nbsp;IP&nbsp;address.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;updates&nbsp;the&nbsp;configuration&nbsp;file&nbsp;with&nbsp;the&nbsp;IP&nbsp;address&nbsp;of&nbsp;the<br>
+specified&nbsp;NF&nbsp;(AMF&nbsp;or&nbsp;SMF)&nbsp;and&nbsp;creates&nbsp;a&nbsp;subscription&nbsp;for&nbsp;receiving&nbsp;notifications<br>
+related&nbsp;to&nbsp;the&nbsp;NF.<br>
+&nbsp;<br>
+:param&nbsp;NF:&nbsp;The&nbsp;type&nbsp;of&nbsp;Network&nbsp;Function&nbsp;(AMF&nbsp;or&nbsp;SMF).<br>
+:type&nbsp;NF:&nbsp;str<br>
+:param&nbsp;ip:&nbsp;The&nbsp;IP&nbsp;address&nbsp;of&nbsp;the&nbsp;Network&nbsp;Function.<br>
+:type&nbsp;ip:&nbsp;str<br>
+:return:&nbsp;A&nbsp;message&nbsp;indicating&nbsp;whether&nbsp;the&nbsp;registration&nbsp;was&nbsp;successful.<br>
+:rtype:&nbsp;str</tt></dd></dl>
+ <dl><dt><a name="-rm_UEs"><strong>rm_UEs</strong></a>(nb_UES)</dt><dd><tt>Removes&nbsp;a&nbsp;specified&nbsp;number&nbsp;of&nbsp;User&nbsp;Equipment&nbsp;(UE)&nbsp;containers.<br>
+&nbsp;<br>
+This&nbsp;function&nbsp;stops&nbsp;and&nbsp;removes&nbsp;the&nbsp;specified&nbsp;number&nbsp;of&nbsp;UE&nbsp;containers<br>
+using&nbsp;Docker&nbsp;commands.&nbsp;It&nbsp;checks&nbsp;the&nbsp;existing&nbsp;containers&nbsp;and&nbsp;stops/removes<br>
+the&nbsp;UE&nbsp;containers&nbsp;up&nbsp;to&nbsp;the&nbsp;specified&nbsp;number.<br>
+&nbsp;<br>
+:param&nbsp;nb_UES:&nbsp;The&nbsp;number&nbsp;of&nbsp;UE&nbsp;containers&nbsp;to&nbsp;remove.<br>
+:type&nbsp;nb_UES:&nbsp;int</tt></dd></dl>
+ <dl><dt><a name="-run_iperf_server"><strong>run_iperf_server</strong></a>(container_name='nr-ue', local_address='12.1.1.2', port=5001)</dt><dd><tt>Run&nbsp;an&nbsp;iperf&nbsp;server&nbsp;inside&nbsp;a&nbsp;Docker&nbsp;container.<br>
+&nbsp;<br>
+:param&nbsp;container_name:&nbsp;The&nbsp;name&nbsp;or&nbsp;ID&nbsp;of&nbsp;the&nbsp;Docker&nbsp;container.<br>
+:param&nbsp;local_address:&nbsp;The&nbsp;local&nbsp;address&nbsp;to&nbsp;bind&nbsp;the&nbsp;iperf&nbsp;server&nbsp;to&nbsp;(default&nbsp;is&nbsp;'12.1.1.2').<br>
+:param&nbsp;port:&nbsp;The&nbsp;port&nbsp;number&nbsp;for&nbsp;the&nbsp;iperf&nbsp;server&nbsp;(default&nbsp;is&nbsp;5001).<br>
+:return:&nbsp;None</tt></dd></dl>
+</td></tr></table>
+</body></html>

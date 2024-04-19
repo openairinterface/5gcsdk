@@ -1,0 +1,14 @@
+Welcome to northbound's documentation!
+**************************************
+
+This module represents an SDK related to THE 5G Core Network.
+
+
+Indices and tables
+******************
+
+* Index
+
+* Module Index
+
+* Search Page

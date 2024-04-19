@@ -1,0 +1,28 @@
+Welcome to northbound's documentation!
+**************************************
+
+This module represents an SDK related to THE 5G Core Network.
+
+northbound.get_registered_UEs()
+
+   Retrieves registered users from the MongoDB collections.
+
+   This function connects to the MongoDB database and retrieves users
+   from the 'amf_notifications' collection. It extracts information
+   such as SUPI, RAN UE NGAP ID, and RM State for each user.
+
+   Returns:
+      A list of dictionaries containing user information.
+
+   Return type:
+      list
+
+
+Indices and tables
+******************
+S
+* Index
+
+* Module Index
+
+* Search Page
