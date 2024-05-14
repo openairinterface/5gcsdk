@@ -140,6 +140,3 @@ def get_ue_status_by_imsi(imsi):
         return print(f"status of UE with IMSI {imsi} : {latest_rm_state}")
     else:
         return print('UE not found')
-
-#get_changed_status_UEs()
-print(get_registered_UEs())

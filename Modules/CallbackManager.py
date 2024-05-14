@@ -1,30 +1,5 @@
 import inspect
-import time
-from pymongo import MongoClient
-from UEManager import get_registered_UEs
-import inspect
 import json
-import sys
-
-#def mytestfunction():
- #   print("status is updated")
-
-#registerCallBackUEStatus("imsi-208990100001100", mytestfunction)
-
-def mytestfunction2(registred_ues ,ue="imsi-208990100001100"):
-    if ue in registred_ues:
-        print("UE is registered",ue)
-    
-
-#registerCallbackUE("imsi-208990100001100", mytestfunction2)
-
-#function_source = inspect.getsource(mytestfunction2)
-#print(function_source)
-
-
-import inspect
-
-import inspect
 
 def registerCallbackUE(callback_function , event_type):
     """
@@ -59,4 +34,3 @@ def registerCallbackUE(callback_function , event_type):
     with open('/home/achraf/oai_cn_sdk/Modules/events.json', 'w') as json_file:
       json.dump(data, json_file, indent=4)
 
-registerCallbackUE(mytestfunction2 , "UEStatus")

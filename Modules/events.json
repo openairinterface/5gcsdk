@@ -1,11 +1,15 @@
 {
     "events": {
         "RegisteredUEs": {
-            "callbacks": []
+            "callbacks": [
+                "mytestfunction2",
+                "mytestfunction12"
+            ]
         },
         "UEStatus": {
             "callbacks": [
-                "mytestfunction2"
+                "mytestfunction1",
+                "mytestfunction11"
             ]
         },
         "UECellID": {
