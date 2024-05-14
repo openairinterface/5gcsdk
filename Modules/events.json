@@ -1,0 +1,18 @@
+{
+    "events": {
+        "RegisteredUEs": {
+            "callbacks": []
+        },
+        "UEStatus": {
+            "callbacks": [
+                "mytestfunction2"
+            ]
+        },
+        "UECellID": {
+            "callbacks": []
+        },
+        "UETraffic": {
+            "callbacks": []
+        }
+    }
+}

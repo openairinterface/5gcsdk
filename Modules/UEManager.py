@@ -49,6 +49,59 @@ def get_registered_UEs():
     
     
     return existing_users
+def get_changed_status_UEs():
+    """
+    Retrieves registered users from the MongoDB collections.
+
+    This function connects to the MongoDB database and retrieves users from the
+    'amf_notifications' collection. It extracts information such as SUPI, RAN UE NGAP ID,
+    and RM State for each user.
+
+    :return: A list of dictionaries containing user information for each timestamp.
+    :rtype: list
+    """
+
+    # Connect to the MongoDB database
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['notification_db']
+    amf_collection = db['amf_notifications']
+    
+    existing_users = {}
+
+    # Iterate over documents in the 'amf_notifications' collection
+    for document in amf_collection.find():
+        for report in document["reportList"]:
+            supi = report["supi"]
+            ran_ue_ngap_id_amf = report["ranUeNgapId"]
+            rm_state_amf = report["rmInfoList"][0]["rmState"]
+            timestamp = report["timeStamp"]
+
+            # Check if the user is already in the dictionary
+            if supi in existing_users:
+                # If the current notification has a newer timestamp, update the information
+                if timestamp > existing_users[supi]['timestamp_amf']:
+                    existing_users[supi]['timestamp_amf'] = timestamp
+                    existing_users[supi]['rmState_amf'] = rm_state_amf
+            else:
+                # If the user is not in the dictionary, add them
+                existing_users[supi] = {'supi': supi, 'ranUeNgapId_amf': ran_ue_ngap_id_amf, 'rmState_amf': rm_state_amf, 'timestamp_amf': timestamp}
+
+    # Filter users with at least 2 different timestamps
+    changed_users = []
+
+    for supi, user_info in existing_users.items():
+        timestamps = {user_info['timestamp_amf']}
+        for document in amf_collection.find({'reportList.supi': supi}):
+            for report in document["reportList"]:
+                timestamps.add(report["timeStamp"])
+
+        if len(timestamps) >= 2:
+            user_info['timestamps'] = list(timestamps)
+            changed_users.append(user_info)
+
+    return changed_users
+
+
 
 
 def get_ue_status_by_imsi(imsi):
@@ -88,4 +141,5 @@ def get_ue_status_by_imsi(imsi):
     else:
         return print('UE not found')
 
-
+#get_changed_status_UEs()
+print(get_registered_UEs())
