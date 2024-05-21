@@ -2,10 +2,10 @@ import uuid
 import requests
 from datetime import datetime
 
-def getAmfSubscriptionUrl(amf_ip='192.168.71.132', amf_port=80, amf_url='/namf-evts/v1'):
+def get_amf_subscription_url(amf_ip, amf_port, amf_url):
     return f"http://{amf_ip}:{amf_port}{amf_url}/subscriptions"
 
-def createAmfSubscription(sub_endpoint , ip_addr='192.168.71.129', port=1112):
+def create_amf_subscription(sub_endpoint , ip_addr, port):
     sub_body = {
         "subscription": {
             "eventList": [{"type": "REGISTRATION_STATE_REPORT"}],
@@ -24,10 +24,10 @@ def createAmfSubscription(sub_endpoint , ip_addr='192.168.71.129', port=1112):
             return ""
     except:
         return ""
-def getSmfSubscriptionUrl(smf_ip='192.168.71.133', smf_port=80, smf_url='/nsmf_event-exposure/v1'):
+def get_smf_subscription_url(smf_ip, smf_port, smf_url):
      return f"http://{smf_ip}:{smf_port}{smf_url}/subscriptions"
 
-def createSmfSubscription(sub_endpoint , ip_addr='192.168.71.129', port=1112):
+def create_smf_subscription(sub_endpoint , ip_addr, port):
     sub_body = {
         "anyUeInd": True,
         "groupId": "aEb1CD9b-561-97-2cbA7bEc2eAC07ECb6",

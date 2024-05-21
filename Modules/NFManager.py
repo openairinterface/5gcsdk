@@ -1,5 +1,5 @@
 from Modules.subscriptions import *
-def registerNF(NF,ip):
+def register_nf(nf,ip):
     """
     Registers a Network Function (NF) with its corresponding IP address.
 
@@ -24,21 +24,14 @@ def registerNF(NF,ip):
     
     """
 
-    if NF == 'AMF':
+    if nf == 'AMF':
         amf_sub = createAmfSubscription(amf_ip=ip)
-        if amf_sub=='' :
-            print("0")
-            exit(1)
-        else:
-
-            return print("1")
-    elif NF == 'SMF':
+        assert amf_sub, "Error: Failed to create AMF subscription"
+        return "1"
+    elif nf == 'SMF':
         smf_sub = createSmfSubscription(smf_ip=ip)
-        if smf_sub=='' :
-            print("0")
-            exit(1)
-        else:
-            return print("1")
+        assert smf_sub, "Error: Failed to create SMF subscription"
+        return "1"
     else:
-        return print("00")
+        return "00"
     
