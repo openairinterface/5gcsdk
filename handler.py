@@ -39,8 +39,8 @@ from yaml.loader import SafeLoader
 with open('configuration.yaml') as f:
     data = yaml.load(f, Loader=SafeLoader)
 
-ip_addr = data['sbi']['ip']
-port    = data['sbi']['port']
+sbi_addr = data['sbi']['ip']
+sbi_port    = data['sbi']['port']
 
 amf_addr= data['amf_1']['ip']
 amf_url = data['amf_1']['url']
@@ -73,14 +73,42 @@ clean_collections()
 # Initialize subscriptions
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = get_amf_subscription_url(amf_addr , amf_port , amf_url)
-amf_sub = create_amf_subscription(amf_endpoint , ip_addr , port)
+amf_sub = create_amf_subscription(amf_endpoint , sbi_addr , sbi_port)
 log.info("Subscribing to User Sessions Events from SMF")
 smf_endpoint = get_smf_subscription_url(smf_addr , smf_port , smf_url)
-smf_sub = create_smf_subscription(smf_endpoint , ip_addr , port)
+smf_sub = create_smf_subscription(smf_endpoint , sbi_addr , sbi_port)
 
 if amf_sub == "" or smf_sub == "":
     log.error("Subscription to CN events failed... Exiting")
     assert False, "Subscription to CN events failed"
+
+def connected_ues():
+
+    existing_users = {}
+
+    for document in amf_collection.find():
+        for report in document["reportList"]:
+            supi = report["supi"]
+            ran_ue_ngap_id = report["ranUeNgapId"]
+            rm_state = report["rmInfoList"][0]["rmState"]
+            timestamp = report["timeStamp"]
+
+            if supi in existing_users:
+                if timestamp > existing_users[supi]['timestamp']:
+                    existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
+            else:
+                existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
+
+    keys_to_remove = []
+    
+    for supi, user_info in existing_users.items():
+        if user_info['rm_state'] != "REGISTERED":
+            keys_to_remove.append(supi)
+
+    for key in keys_to_remove:
+        existing_users.pop(key)
+    
+    return existing_users
 
 # handle the callbacks for registered UEs
 def handle_registered_ue_callbacks():
@@ -88,7 +116,7 @@ def handle_registered_ue_callbacks():
     events_json_path = os.path.join(home_dir, 'oai_cn_sdk', 'Modules', 'events.json')
     with open(events_json_path, 'r') as json_file:
         data = json.load(json_file)
-    registered_users = get_registered_ues()
+    registered_users = connected_ues()
 
     if data["events"]["RegisteredUEs"]["callbacks"] and registered_users:
         for callback_name in data["events"]["RegisteredUEs"]["callbacks"]:

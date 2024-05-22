@@ -1,0 +1,21 @@
+# Doxyfile for Python documentation
+
+# Specify the directory containing your Python files
+INPUT                  =  
+		         CallbackManager.py \
+                         NFManager.py \
+                         RFsimUEManager.py \
+                         UEManager.py
+			../oai5gc.py \
+
+# Enable extracting documentation from Python docstrings
+EXTRACT_ALL            = YES
+
+# Set the output directory for the generated documentation
+OUTPUT_DIRECTORY       = ./docs
+
+# Specify additional file types to be considered for documentation
+FILE_PATTERNS          = *.py
+
+# Set the documentation format to Python
+OPTIMIZE_OUTPUT_FOR_C  = YES
