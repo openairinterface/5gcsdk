@@ -19,11 +19,7 @@ Usage:
 2. Utilize the functionalities provided by the respective packages within the SDK.
 
 """
-import os
-import sys
-home_directory = os.path.expanduser("~")
-path = os.path.join(home_directory, 'oai_cn_sdk')
-sys.path.append('/oai_cn_sdk')
+
 from Modules.RFsimUEManager import *
 from Modules.UEManager import *
 from Modules.CallbackManager import *
