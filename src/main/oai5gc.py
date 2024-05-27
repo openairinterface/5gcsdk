@@ -21,13 +21,27 @@ Usage:
 """
 import sys
 import os
+import subprocess
+
+# Get the current directory and parent directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
+
+# Add the parent directory to the system path to import modules
 sys.path.append(os.path.join(parent_dir, 'modules'))
+
 from RFsimUEManager import *
 from UEManager import *
 from CallbackManager import *
 from NFManager import *
+
+def start_handler():
+    handler_path = os.path.join(current_dir, 'handler.py')
+    if os.path.isfile(handler_path):
+        subprocess.Popen([sys.executable, handler_path])
+
+start_handler()
+
 
  
 
