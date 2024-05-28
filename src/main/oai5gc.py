@@ -19,9 +19,10 @@ Usage:
 2. Utilize the functionalities provided by the respective packages within the SDK.
 
 """
-import sys
 import os
-import subprocess
+import sys
+import threading
+import handler as h # Import handler.py directly
 
 # Get the current directory and parent directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -30,17 +31,19 @@ parent_dir = os.path.dirname(current_dir)
 # Add the parent directory to the system path to import modules
 sys.path.append(os.path.join(parent_dir, 'modules'))
 
+# Import the required modules
 from RFsimUEManager import *
 from UEManager import *
 from CallbackManager import *
 from NFManager import *
 
+# Function to start handler.py in a separate thread
 def start_handler():
-    handler_path = os.path.join(current_dir, 'handler.py')
-    if os.path.isfile(handler_path):
-        subprocess.Popen([sys.executable, handler_path])
+    handler.main()  # Call the main function of handler.py directly
 
-start_handler()
+# Start handler.py in a separate thread
+handler_thread = threading.Thread(target=start_handler)
+handler_thread.start()
 
 
  
