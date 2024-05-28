@@ -22,7 +22,7 @@ Usage:
 import os
 import sys
 import threading
-import handler as handler # Import handler.py directly
+from handler import main # Import handler.py directly
 
 # Get the current directory and parent directory
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -39,7 +39,7 @@ from NFManager import *
 
 # Function to start handler.py in a separate thread
 def start_handler():
-    handler.main()  # Call the main function of handler.py directly
+    main()  # Call the main function of handler.py directly
 
 # Start handler.py in a separate thread
 handler_thread = threading.Thread(target=start_handler)
