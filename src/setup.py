@@ -34,7 +34,7 @@ requirements = [
     'PyYAML==6.0',
     'flask==2.0.3',
     'docker==7.0.0',
-    'pymongo==2.0.3'
+    'pymongo==4.6.1''
 ]
 
 # #Relative path issue in alpine
