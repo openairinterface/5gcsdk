@@ -53,7 +53,7 @@ setup(
     #package_data={'': ['swagger/swagger.yaml']},
     #include_package_data=True,
     entry_points={
-        'console_scripts': ['<put main here>']},
+        'console_scripts': ['oai5gc-cli=main.oai5gc:main']},
     long_description="""\
     OAI 5G Core SDK bla bla
     """
