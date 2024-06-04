@@ -27,7 +27,7 @@ VERSION = "0.0.1"
 # prerequisite: setuptools
 # http://pypi.python.org/pypi/setuptools
 
-requirements = [
+requirements = [	
     'attrs==21.4.0', 
     'Werkzeug==2.0.0', 
     'zipp==3.6.0',
