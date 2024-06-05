@@ -94,12 +94,16 @@ Functions</h2></td></tr>
       </table>
 </div><div class="memdoc">
 <pre class="fragment">Deploys a specified number of User Equipment (UE) containers.
-
-This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
-It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
-
-:param nb_ues: The number of UE containers to deploy.
-:type nb_ues: int
+        
+  This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
+  It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
+  
+  <strong> nb_ues:</strong> The number of UE containers to deploy.
+  <strong>:type nb_ues:</strong> int
+  
+  Usage Example:
+  --------------
+  <code>>>> add_ues(3)</code>
 </pre> 
 </div>
 </div>
@@ -120,12 +124,16 @@ It checks the existing containers, and if the number of UEs to deploy is within 
 </div><div class="memdoc">
 <pre class="fragment">Removes a specified number of User Equipment (UE) containers.
 
-This function stops and removes the specified number of UE containers
-using Docker commands. It checks the existing containers and stops and removes
-the UE containers up to the specified number.
+  This function stops and removes the specified number of UE containers
+  using Docker commands. It checks the existing containers and stops and removes
+  the UE containers up to the specified number.
 
-:param nb_ues: The number of UE containers to remove.
-:type nb_ues: int
+  <strong>nb_ues:</strong>  The number of UE containers to remove.
+  <strong>:type nb_ues:</strong>  int
+  
+  Usage Example:
+  --------------
+ <code> >>> remove_ues(2)</code>
 </pre> 
 </div>
 </div>
@@ -148,7 +156,7 @@ the UE containers up to the specified number.
 This function pulls Docker images required for the OAI RFSIM5G environment and starts the
 necessary Docker containers.
 
-:return: None
+<strong>:return:</strong> None
 </pre> 
 </div>
 </div>
