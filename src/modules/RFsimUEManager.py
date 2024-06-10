@@ -5,13 +5,17 @@ import docker
 
 def add_ues(nb_ues):
     """
-    Deploys a specified number of User Equipment (UE) containers.
-    
-    This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
-    It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
-    
-    :param nb_ues: The number of UE containers to deploy.
-    :type nb_ues: int
+        Deploys a specified number of User Equipment (UE) containers.
+        
+        This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
+        It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
+        
+        :param nb_ues: The number of UE containers to deploy.
+        :type nb_ues: int
+        
+        Usage Example:
+        --------------
+        >>> add_ues(3)
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -57,6 +61,10 @@ def remove_ues(nb_ues):
 
     :param nb_ues: The number of UE containers to remove.
     :type nb_ues: int
+    
+    Usage Example:
+    --------------
+    >>> remove_ues(2)
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -85,6 +93,10 @@ def start_oai_rfsim5g():
     necessary Docker containers.
 
     :return: None
+    
+    Usage Example:
+    --------------
+    >>> start_oai_rfsim5g()
     """
     home_dir = os.path.expanduser("~")
     directory = os.path.join(home_dir,'openairinterface5g-develop', 'ci-scripts', 'yaml_files', '5g_rfsimulator')

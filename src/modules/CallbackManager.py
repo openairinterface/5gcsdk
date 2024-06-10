@@ -17,6 +17,13 @@ def register_callback_ue(callback_function, event_type):
     :type event_type: str
     :return: None
     :raises: Exception if an error occurs while writing to the file.
+
+    Usage Example:
+    --------------
+    >>> def sample_callback(data):
+    >>>     print("Callback called with data:", data)
+    >>> 
+    >>> register_callback_ue(sample_callback, "RegisteredUEs")
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)

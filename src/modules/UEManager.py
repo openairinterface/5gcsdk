@@ -28,6 +28,12 @@ def get_registered_ues():
 
     :return: A list of dictionaries containing user information.
     :rtype: list
+
+    Usage Example:
+    --------------
+    >>> registered_ues = get_registered_ues()
+    >>> for ue in registered_ues:
+    >>>     print(ue)
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
@@ -74,8 +80,6 @@ def get_registered_ues():
 
 def get_ue_status(ue_credentials):
     """
-        Retrieves the status of a registered UE by its credentials (IMSI or IP Address).
-
         This function takes the IMSI (International Mobile Subscriber Identity) or IP Address
         of a UE as input and returns its status if the UE is registered. If the IMSI or IP Address
         is not found in the database, it returns 'UE not found'. If the input is invalid, it returns
@@ -86,6 +90,17 @@ def get_ue_status(ue_credentials):
         :return: The status of the UE, 'UE not found' if the IMSI or IP Address is not found, or
                 'Invalid IMSI or IP address' if the input is invalid.
         :rtype: str
+        
+        Usage Example:
+        --------------
+        >>> imsi = "imsi-123456789012345"
+        >>> status = get_ue_status(imsi)
+        >>> print(f"Status of UE with IMSI {imsi}: {status}")
+
+        >>> ip_address = "192.168.1.1"
+        >>> status = get_ue_status(ip_address)
+        >>> print(f"Status of UE with IP {ip_address}: {status}")
+
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)

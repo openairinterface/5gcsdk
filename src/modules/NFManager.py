@@ -7,8 +7,8 @@ def register_nf(nf,ip):
     specified NF (AMF or SMF) and creates a subscription with the CN 
     related to the NF.
 
-    :param NF: The type of Network Function (AMF or SMF).
-    :type NF: str
+    :param nf: The type of Network Function (AMF or SMF).
+    :type nf: str
     :param ip: The IP address of the Network Function.
     :type ip: str
     :return: A message indicating whether the registration was successful.
@@ -21,7 +21,17 @@ def register_nf(nf,ip):
     |   "1"  | Registration was successful.                                 |
     |   "0"  | Error occurred during registration.                          |
     |  "00"  | NF provided is not recognized.                               |
-    
+
+    Usage Example:
+    --------------
+    >>> result = register_nf('AMF', '192.168.1.1')
+    >>> print(result)  # Output: "1" (if successful)
+
+    >>> result = register_nf('SMF', '192.168.1.2')
+    >>> print(result)  # Output: "1" (if successful)
+
+    >>> result = register_nf('XYZ', '192.168.1.3')
+    >>> print(result)  # Output: "00" (NF not recognized)
     """
 
     if nf == 'AMF':

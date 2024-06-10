@@ -1,8 +1,10 @@
-attrs==21.4.0
-Werkzeug==2.0.0
-zipp==3.6.0
 PyYAML==6.0
-flask==2.0.3
+Python3==3.10.12
+Werkzeug==2.0.0
+attrs==21.4.0
 docker==7.0.0
-pymongo==4.6.1
+flask==2.0.3
+pip==22.0.2
 psutil==5.9.0
+pymongo==4.6.1
+zipp==3.6.0
