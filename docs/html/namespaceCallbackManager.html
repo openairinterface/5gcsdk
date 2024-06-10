@@ -101,16 +101,25 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <pre class="fragment">Registers a callback function for the specified event type and stores it in a file called callbacks.py.
 
-This function takes a callback function and an event type as input parameters. It extracts the source code
-of the callback function and writes it to a file called callbacks.py. Additionally, it updates an events.json
-file to store the registered callback function under the corresponding event type.
+  This function takes a callback function and an event type as input parameters. It extracts the source 
+  code of the callback function and writes it to a file called callbacks.py. Additionally, it updates 
+  an <strong>events.json </strong>file to store the registered callback function under the corresponding event type.
 
-:param callback_function: The callback function to register.
-:type callback_function: function
-:param event_type: The type of event for which the callback function is registered (e.g., "RegisteredUEs", "UEStatus").
-:type event_type: str
-:return: None
-:raises: Exception if an error occurs while writing to the file.
+  <strong>:param callback_function:</strong> The callback function to register.
+  <strong>:type callback_function:</strong> function
+  <strong>:param event_type:</strong> The type of event for which the callback function is registered (e.g., "RegisteredUEs", "UEStatus").
+  <strong>:type event_type:</strong> str
+  <strong>:return:</strong> None
+  <strong>:raises:</strong> Exception if an error occurs while writing to the file.
+
+<strong>Usage Example:</strong>
+  --------------
+<pre><code>
+  >>> def sample_callback(data):
+  >>>     print("Callback called with data:", data)
+  >>> 
+  >>> register_callback_ue(sample_callback, "RegisteredUEs")
+</code></pre>
 </pre> 
 </div>
 </div>
