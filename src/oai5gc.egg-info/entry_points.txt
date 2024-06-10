@@ -1,3 +1,0 @@
-[console_scripts]
-oai5gc-cli = main.oai5gc:main
-

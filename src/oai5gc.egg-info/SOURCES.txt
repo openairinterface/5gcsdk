@@ -1,7 +1,0 @@
-setup.py
-oai5gc.egg-info/PKG-INFO
-oai5gc.egg-info/SOURCES.txt
-oai5gc.egg-info/dependency_links.txt
-oai5gc.egg-info/entry_points.txt
-oai5gc.egg-info/requires.txt
-oai5gc.egg-info/top_level.txt
