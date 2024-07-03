@@ -30,8 +30,9 @@ sys.path.append(os.path.join(parent_dir, 'subscriptions_manager'))
 import callbacks as callbacks
 import signal
 import requests
+import subprocess
 from flask import Flask, request
-from pymongo import MongoClient
+from pymongo import MongoClient , errors
 import subscriptions as subscriptions
 import logging
 import json
@@ -62,22 +63,58 @@ smf_port= data['smf_1']['port']
 changed_status_dict = {}
 
 app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+log = logging.getLogger(__name__)
+logging.getLogger('pymongo').setLevel(logging.WARNING)
+logging.getLogger("docker.utils.config").setLevel(logging.WARN)
+logging.getLogger("urllib3.connectionpool").setLevel(logging.WARN)
+logging.getLogger('werkzeug').setLevel(logging.ERROR)
+
+
+def check_mongodb_status():
+    try:
+        # Run the 'systemctl is-active mongod' command
+        result = subprocess.run(['systemctl', 'is-active', 'mongod'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Check if MongoDB is active
+        if result.stdout.strip() == 'active':
+            return True
+        else:
+            return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+
+mongodb_status=check_mongodb_status() 
+if  mongodb_status==False :
+    with open(status_file_path, 'r') as file:
+        data = yaml.safe_load(file)
+    data['handler_status'] = 'off'  
+    data['handler_pid'] = 'None' 
+    with open(status_file_path, 'w') as file:
+        yaml.safe_dump(data, file)
+    
+    assert False,  "Could not connect to MongoDB"
+
 client = MongoClient('mongodb://localhost:27017/')
 db = client['notification_db']
 amf_collection = db['amf_notifications']
 smf_collection = db['smf_notifications']
+log.info("Successfully connected to MongoDB.")
 
-logging.basicConfig(level=logging.DEBUG)
-log = logging.getLogger(__name__)
+
+
+
+# Initialize MongoDB collections
+
 
 # Clean collections
 def clean_collections():
     amf_collection.delete_many({})
     smf_collection.delete_many({})
     log.info("Collections cleaned.")
-
+    
 clean_collections()
-
 # Initialize subscriptions
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = subscriptions.get_amf_subscription_url(amf_addr , amf_port , amf_url)
@@ -87,12 +124,9 @@ log.info("Subscribing to User Sessions Events from SMF")
 smf_endpoint = subscriptions.get_smf_subscription_url(smf_addr , smf_port , smf_url)
 smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port )
 
-#smf_sub_2 = create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "")
-
-
 
 if amf_sub == "" or smf_sub == "":
-    log.error("Subscription to CN events failed... Exiting")
+    log.error("Subscription to CN events failed... Exiting \n check AMF and SMF connectivity")
     with open(status_file_path, 'r') as file:
         data = yaml.safe_load(file)
     
@@ -140,29 +174,35 @@ def handle_registered_ue_callbacks():
     registered_users = connected_ues()
 
     if data["events"]["RegisteredUEs"]["callbacks"] and registered_users:
+        last_registered_user = list(registered_users.values())[-1]
         for callback_name in data["events"]["RegisteredUEs"]["callbacks"]:
             callback_function = getattr(callbacks, callback_name, None)
             if callback_function:
-                callback_function(registered_users)
+                callback_function(last_registered_user)
 
 def handle_changed_status_callbacks():
     global changed_status_dict
+    latest_status_dict = {}
+
     for document in amf_collection.find():
         for report in document["reportList"]:
             supi = report["supi"]
             ran_ue_ngap_id_amf = report["ranUeNgapId"]
             rm_state_amf = report["rmInfoList"][0]["rmState"]
             timestamp = report["timeStamp"]
-            if supi not in changed_status_dict:
-                changed_status_dict[supi] = {'supi': supi, 'ranUeNgapId_amf': ran_ue_ngap_id_amf,
-                                              'rmState_amf': rm_state_amf, 'timestamp_amf': timestamp}
 
-            if rm_state_amf != changed_status_dict[supi]['rmState_amf']:
-                temp_dict = {}
-                temp_dict[supi] = {'supi': supi, 'ranUeNgapId_amf': ran_ue_ngap_id_amf,
-                                   'rmState_amf': rm_state_amf, 'timestamp_amf': timestamp}
-                changed_status_dict[supi] = {'supi': supi, 'ranUeNgapId_amf': ran_ue_ngap_id_amf,
-                                             'rmState_amf': rm_state_amf, 'timestamp_amf': timestamp}
+            if supi not in latest_status_dict or timestamp > latest_status_dict[supi]['timestamp_amf']:
+                latest_status_dict[supi] = {
+                    'supi': supi,
+                    'ranUeNgapId_amf': ran_ue_ngap_id_amf,
+                    'rmState_amf': rm_state_amf,
+                    'timestamp_amf': timestamp
+                }
+
+    for supi, status in latest_status_dict.items():
+        if supi in changed_status_dict:
+            if status['rmState_amf'] != changed_status_dict[supi]['rmState_amf']:
+                temp_dict = {supi: status}
 
                 home_dir = os.path.expanduser("~")
                 events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
@@ -176,6 +216,7 @@ def handle_changed_status_callbacks():
                         if callback_function:
                             callback_function(temp_dict)
 
+        changed_status_dict[supi] = status
 
 # Route for AMF notifications
 @app.route('/callbacks/amf-reports', methods=['POST'])
