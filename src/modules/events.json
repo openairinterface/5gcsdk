@@ -1,9 +1,7 @@
 {
     "events": {
         "RegisteredUEs": {
-            "callbacks": [
-                "sample_callback"
-            ]
+            "callbacks": []
         },
         "UEStatus": {
             "callbacks": []
