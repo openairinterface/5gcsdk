@@ -90,24 +90,25 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Retrieves registered users from the MongoDB collections.
+  <pre class="fragment">Retrieves registered users from the MongoDB collections.
 
-  This function connects to the MongoDB database and retrieves users from the
-  'amf_notifications' collection. It extracts information such as SUPI, RAN UE NGAP ID,
-  and RM State for each user.
-
-  <strong>:return:</strong> A list of dictionaries containing user information.
-  <strong>:rtype:</strong> list
-
-  Usage Example:
-  --------------
-  <code>
-  >>> registered_ues = get_registered_ues()
-  >>> for ue in registered_ues:
-  >>>     print(ue) </code>
-</pre> 
-</div>
-</div>
+    This function connects to the MongoDB database and retrieves users from the
+    'amf_notifications' collection. It extracts information such as SUPI, RAN UE NGAP ID,
+    and RM State for each user.
+  
+    <strong>:return:</strong> A list of dictionaries containing user information.
+    <strong>:rtype:</strong> list
+    <strong>:raises AssertionError:</strong> If the required collections are not found or if no documents or reports are found.
+    <strong>:raises Exception:</strong> For any other errors that occur during database operations.
+    <strong>Usage Example:</strong> 
+    --------------
+    <code>
+    >>> registered_ues = get_registered_ues()
+    >>> for ue in registered_ues:
+    >>>     print(ue) </code>
+  </pre> 
+  </div>
+  </div>
 <a id="a25e4b2936878a1ac477d802b07736fef"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#a25e4b2936878a1ac477d802b07736fef">&#9670;&nbsp;</a></span>get_ue_status()</h2>
 
@@ -123,7 +124,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">    Retrieves the status of a registered UE by its credentials (IMSI or IP Address).
+  <pre class="fragment">    Retrieves the status of a registered UE by its credentials (IMSI or IP Address).
 
     This function takes the IMSI (International Mobile Subscriber Identity) or IP Address
     of a UE as input and returns its status if the UE is registered. If the IMSI or IP Address
@@ -131,11 +132,14 @@ Functions</h2></td></tr>
     'Invalid IMSI or IP address'.
 
     <strong>:param ue_credentials:</strong> The IMSI or IP Address of the UE.
-    </strong>:type ue_credentials:</strong> str
-    </strong>:return:</strong> The status of the UE, 'UE not found' if the IMSI or IP Address is not found, or
+    <strong>:type ue_credentials:</strong> str
+    <strong>:return:</strong> The status of the UE, 'UE not found' if the IMSI or IP Address is not found, or
             'Invalid IMSI or IP address' if the input is invalid.
-    </strong>:rtype:</strong> str
-    Usage Example:
+    <strong>:rtype:</strong> str
+    <strong>:raises AssertionError:</strong>If the MongoDB connection fails, the collections are not found, or the IMSI/IP address format is invalid.
+    <strong>:raises Exception:</strong> For any other errors that occur during database operations.
+
+    <strong>Usage Example:</strong> 
     --------------
     <code>
     >>> imsi = "imsi-123456789012345"

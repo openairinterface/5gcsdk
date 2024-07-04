@@ -63,12 +63,12 @@ smf_port= data['smf_1']['port']
 changed_status_dict = {}
 
 app = Flask(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
 logging.getLogger('pymongo').setLevel(logging.WARNING)
 logging.getLogger("docker.utils.config").setLevel(logging.WARN)
 logging.getLogger("urllib3.connectionpool").setLevel(logging.WARN)
-logging.getLogger('werkzeug').setLevel(logging.ERROR)
+logging.getLogger('werkzeug').setLevel(logging.DEBUG)
 
 
 def check_mongodb_status():

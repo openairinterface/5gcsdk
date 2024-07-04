@@ -13,7 +13,9 @@ def add_ues(nb_ues):
     
     :param nb_ues: The number of UE containers to deploy.
     :type nb_ues: int
-    
+    :raises AssertionError: If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+    :raises Exception: For any other errors that occur while deploying the containers.
+
     Usage Example:
     --------------
     >>> add_ues(3)
@@ -67,7 +69,9 @@ def remove_ues(nb_ues):
 
     :param nb_ues: The number of UE containers to remove.
     :type nb_ues: int
-    
+    :raises AssertionError: If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+    :raises Exception: For any other errors that occur while stopping and removing the containers.
+
     Usage Example:
     --------------
     >>> remove_ues(2)

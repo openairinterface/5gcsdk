@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['start_5foai_5frfsim5g_49',['START_OAI_RFSIM5G',['../namespaceRFsimUEManager.html#a37c84bfbaaf194f7b809129c383862b0',1,'RFsimUEManager']]]
+  ['unregister_5fcallback_5fue_49',['unregister_callback_ue',['../namespaceCallbackManager.html#ab557d9d09f9c549f660788955d5f9a8b',1,'CallbackManager']]]
 ];

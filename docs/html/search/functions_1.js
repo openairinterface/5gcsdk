@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['createamfsubscription_34',['createAmfSubscription',['../namespacesubscriptions.html#a574b3ffdf4785c302853bba0585f48a9',1,'subscriptions']]],
-  ['createsmfsubscription_35',['createSmfSubscription',['../namespacesubscriptions.html#a0d439403510b5a6e79e22e9ea3cc8d4f',1,'subscriptions']]]
+  ['createamfsubscription_41',['createAmfSubscription',['../namespacesubscription.html#a692adec071b9c718b0bae75e3b34ad65',1,'subscription']]],
+  ['createsmfsubscription_42',['createSmfSubscription',['../namespacesubscription.html#a5c8ba3b66ca5a475a6c52c61208cd69c',1,'subscription']]]
 ];

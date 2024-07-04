@@ -29,6 +29,9 @@ def get_registered_ues():
     :return: A list of dictionaries containing user information.
     :rtype: list
 
+    :raises AssertionError: If the required collections are not found or if no documents or reports are found.
+    :raises Exception: For any other errors that occur during database operations.
+
     Usage Example:
     --------------
     >>> registered_ues = get_registered_ues()
@@ -120,7 +123,10 @@ def get_ue_status(ue_credentials):
     :return: The status of the UE, 'UE not found' if the IMSI or IP Address is not found, or
              'Invalid IMSI or IP address' if the input is invalid.
     :rtype: str
-    
+
+    :raises AssertionError: If the MongoDB connection fails, the collections are not found, or the IMSI/IP address format is invalid.
+    :raises Exception: For any other errors that occur during database operations.
+
     Usage Example:
     --------------
     >>> imsi = "imsi-123456789012345"

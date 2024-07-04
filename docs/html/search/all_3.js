@@ -1,5 +1,5 @@
 var searchData=
 [
-  ['nfmanager_9',['NFManager',['../namespaceNFManager.html',1,'']]],
-  ['nfmanager_2epy_10',['NFManager.py',['../NFManager_8py.html',1,'']]]
+  ['get_5fregistered_5fues_8',['get_registered_ues',['../namespaceUEManager.html#a915d290d694138bdc332d71ac4456ee4',1,'UEManager']]],
+  ['get_5fue_5fstatus_9',['get_ue_status',['../namespaceUEManager.html#a25e4b2936878a1ac477d802b07736fef',1,'UEManager']]]
 ];

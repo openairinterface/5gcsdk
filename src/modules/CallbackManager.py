@@ -24,7 +24,9 @@ def register_callback_ue(callback_function, event_type):
     :param event_type: The type of event for which the callback function is registered (e.g., EventType.REGISTERED_UES).
     :type event_type: EventType
     :return: None
-    :raises: Exception if an error occurs while writing to the file.
+    :raises AssertionError: If the event type is invalid, or if the required keys are not found in events.json.
+    :raises ValueError: If the callback function is already registered for the event type.
+    :raises Exception: For any other errors that occur while writing to the file.
 
     Usage Example:
     --------------
@@ -102,7 +104,8 @@ def unregister_callback_ue(function_name=None, event_type=None):
     :param event_type: The type of event for which the callback function is unregistered (e.g., EventType.REGISTERED_UES).
     :type event_type: EventType, optional
     :return: None
-    :raises: Exception if an error occurs while modifying the files.
+    :raises AssertionError: If the function name is not a string, the event type is invalid, or the required keys are not found in events.json.
+    :raises Exception: For any other errors that occur while modifying the files.
 
     Usage Example:
     --------------

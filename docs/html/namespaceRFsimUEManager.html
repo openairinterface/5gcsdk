@@ -74,8 +74,6 @@ Functions</h2></td></tr>
 <tr class="separator:aad2aefb33b10fafcddf8151348a01e64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab50c0ee86e9e91cedf460e4f2deedada"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceRFsimUEManager.html#ab50c0ee86e9e91cedf460e4f2deedada">remove_ues</a> (nb_ues)</td></tr>
 <tr class="separator:ab50c0ee86e9e91cedf460e4f2deedada"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:afd68b54e9c5dfa23c96537f297bdaa13"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceRFsimUEManager.html#afd68b54e9c5dfa23c96537f297bdaa13">start_oai_rfsim5g</a> ()</td></tr>
-<tr class="separator:afd68b54e9c5dfa23c96537f297bdaa13"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="aad2aefb33b10fafcddf8151348a01e64"></a>
@@ -93,20 +91,22 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Deploys a specified number of User Equipment (UE) containers.
+  <pre class="fragment">Deploys a specified number of User Equipment (UE) containers.
         
-  This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
-  It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
-  
-  <strong> nb_ues:</strong> The number of UE containers to deploy.
-  <strong>:type nb_ues:</strong> int
-  
-  Usage Example:
-  --------------
-  <code>>>> add_ues(3)</code>
-</pre> 
-</div>
-</div>
+    This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
+    It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
+    
+    <strong> nb_ues:</strong> The number of UE containers to deploy.
+    <strong>:type nb_ues:</strong> int
+    <strong>:raises AssertionError:</strong> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+    <strong>:raises Exception:</strong> For any other errors that occur while deploying the containers.
+
+    <strong>Usage Example:</strong> 
+    --------------
+    <code>>>> add_ues(3)</code>
+  </pre> 
+  </div>
+  </div>
 <a id="ab50c0ee86e9e91cedf460e4f2deedada"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab50c0ee86e9e91cedf460e4f2deedada">&#9670;&nbsp;</a></span>remove_ues()</h2>
 
@@ -122,44 +122,23 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<pre class="fragment">Removes a specified number of User Equipment (UE) containers.
+  <pre class="fragment">Removes a specified number of User Equipment (UE) containers.
 
-  This function stops and removes the specified number of UE containers
-  using Docker commands. It checks the existing containers and stops and removes
-  the UE containers up to the specified number.
-
-  <strong>nb_ues:</strong>  The number of UE containers to remove.
-  <strong>:type nb_ues:</strong>  int
+    This function stops and removes the specified number of UE containers
+    using Docker commands. It checks the existing containers and stops and removes
+    the UE containers up to the specified number.
   
-  Usage Example:
-  --------------
- <code> >>> remove_ues(2)</code>
-</pre> 
-</div>
-</div>
-<a id="afd68b54e9c5dfa23c96537f297bdaa13"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#afd68b54e9c5dfa23c96537f297bdaa13">&#9670;&nbsp;</a></span>start_oai_rfsim5g()</h2>
+    <strong>nb_ues:</strong>  The number of UE containers to remove.
+    <strong>:type nb_ues:</strong>  int
+    <strong>:raises AssertionError:</strong> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+    <strong>:raises Exception:</strong> For any other errors that occur while stopping and removing the containers.
 
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">def RFsimUEManager.start_oai_rfsim5g </td>
-          <td>(</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-<pre class="fragment">Starts the OAI RFSIM5G environment.
-
-This function pulls Docker images required for the OAI RFSIM5G environment and starts the
-necessary Docker containers.
-
-<strong>:return:</strong> None
-</pre> 
-</div>
-</div>
+    <strong>Usage Example:</strong> 
+    --------------
+   <code> >>> remove_ues(2)</code>
+  </pre> 
+  </div>
+  </div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

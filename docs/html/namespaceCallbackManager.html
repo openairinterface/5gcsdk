@@ -62,16 +62,24 @@ $(function() {
 </div><!-- top -->
 <div class="header">
   <div class="summary">
+<a href="#nested-classes">Data Structures</a> &#124;
 <a href="#func-members">Functions</a>  </div>
   <div class="headertitle">
 <div class="title">CallbackManager Namespace Reference</div>  </div>
 </div><!--header-->
 <div class="contents">
 <table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="nested-classes"></a>
+Data Structures</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">class &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classCallbackManager_1_1EventType.html">EventType</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
 <tr class="memitem:a8ef83e093191fe41ecdd2644ee9e1b57"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceCallbackManager.html#a8ef83e093191fe41ecdd2644ee9e1b57">register_callback_ue</a> (callback_function, event_type)</td></tr>
 <tr class="separator:a8ef83e093191fe41ecdd2644ee9e1b57"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab557d9d09f9c549f660788955d5f9a8b"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceCallbackManager.html#ab557d9d09f9c549f660788955d5f9a8b">unregister_callback_ue</a> (function_name=None, event_type=None)</td></tr>
+<tr class="separator:ab557d9d09f9c549f660788955d5f9a8b"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="a8ef83e093191fe41ecdd2644ee9e1b57"></a>
@@ -101,25 +109,70 @@ Functions</h2></td></tr>
 </div><div class="memdoc">
 <pre class="fragment">Registers a callback function for the specified event type and stores it in a file called callbacks.py.
 
-  This function takes a callback function and an event type as input parameters. It extracts the source 
-  code of the callback function and writes it to a file called callbacks.py. Additionally, it updates 
-  an <strong>events.json </strong>file to store the registered callback function under the corresponding event type.
+This function takes a callback function and an event type as input parameters. It extracts the source code
+of the callback function and writes it to a file called callbacks.py. Additionally, it updates an events.json
+file to store the registered callback function under the corresponding event type.
 
-  <strong>:param callback_function:</strong> The callback function to register.
-  <strong>:type callback_function:</strong> function
-  <strong>:param event_type:</strong> The type of event for which the callback function is registered (e.g., "RegisteredUEs", "UEStatus").
-  <strong>:type event_type:</strong> str
-  <strong>:return:</strong> None
-  <strong>:raises:</strong> Exception if an error occurs while writing to the file.
+<strong>:param callback_function:</strong> The callback function to register.
+<strong>:type callback_function: </strong>function
+<strong>:param event_type:</strong> The type of event for which the callback function is registered (e.g., EventType.REGISTERED_UES).
+<strong>:type event_type:</strong> EventType
+<strong>:return:</strong> None
+<strong>:raises AssertionError:</strong> If the event type is invalid, or if the required keys are not found in events.json.
+<strong>:raises ValueError:</strong>If the callback function is already registered for the event type.
+<strong>:raises Exception:</strong> For any other errors that occur while writing to the file.
 
-<strong>Usage Example:</strong>
-  --------------
-<pre><code>
-  >>> def sample_callback(data):
-  >>>     print("Callback called with data:", data)
-  >>> 
-  >>> register_callback_ue(sample_callback, "RegisteredUEs")
-</code></pre>
+<strong>Usage Example:</strong> 
+--------------
+&gt;&gt;&gt; def sample_callback(data):
+&gt;&gt;&gt;     print("Callback called with data:", data)
+&gt;&gt;&gt; 
+&gt;&gt;&gt; register_callback_ue(sample_callback, EventType.REGISTERED_UES)
+</pre> 
+</div>
+</div>
+<a id="ab557d9d09f9c549f660788955d5f9a8b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab557d9d09f9c549f660788955d5f9a8b">&#9670;&nbsp;</a></span>unregister_callback_ue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def CallbackManager.unregister_callback_ue </td>
+          <td>(</td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>function_name</em> = <code>None</code>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">&#160;</td>
+          <td class="paramname"><em>event_type</em> = <code>None</code>&#160;</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td>)</td>
+          <td></td><td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Unregisters a callback function for the specified event type and removes it from callbacks.py and events.json.
+If no arguments are provided, removes all callback functions from callbacks.py and events.json.
+
+<strong>:param function_name:</strong> The name of the callback function to unregister.
+<strong>:type function_name: </strong> str, optional
+<strong>:param event_type:</strong> The type of event for which the callback function is unregistered (e.g., EventType.REGISTERED_UES).
+<strong>:type event_type:</strong> EventType, optional
+<strong>:return:</strong> None
+<strong>:raises AssertionError:</strong> If the function name is not a string, the event type is invalid, or the required keys are not found in events.json.
+<strong>:raises Exception:</strong> For any other errors that occur while modifying the files.
+
+<strong>Usage Example:</strong> 
+--------------
+
+&gt;&gt;&gt; event = EventType.REGISTERED_UES
+&gt;&gt;&gt; unregister_callback_ue('sample_callback', event)
+&gt;&gt;&gt; unregister_callback_ue()  # This will remove all callback functions
 </pre> 
 </div>
 </div>

@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['changed_5fstatus_5fdict_70',['changed_status_dict',['../namespacehandler.html#a618617270d5b7d896112636315a11b41',1,'handler']]],
-  ['client_71',['client',['../namespacehandler.html#a839453d78d50125e2922292ec6e4f0f5',1,'handler']]]
+  ['ue_5fcell_5fid_51',['UE_CELL_ID',['../classCallbackManager_1_1EventType.html#a84332651fa19a12ab07eeda1c87cf7ea',1,'CallbackManager::EventType']]],
+  ['ue_5fstatus_52',['UE_STATUS',['../classCallbackManager_1_1EventType.html#a707f052d19ac566a6a9024ef561ac3fe',1,'CallbackManager::EventType']]],
+  ['ue_5ftraffic_53',['UE_TRAFFIC',['../classCallbackManager_1_1EventType.html#a86ae0312919ca6fef0d1a25127e63712',1,'CallbackManager::EventType']]]
 ];

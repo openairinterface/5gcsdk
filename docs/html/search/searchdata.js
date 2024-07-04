@@ -1,24 +1,30 @@
 var indexSectionsWithContent =
 {
-  0: "acgnrsu",
-  1: "cnrsu",
+  0: "acegnrsu",
+  1: "e",
   2: "cnrsu",
-  3: "acgrs"
+  3: "cnrsu",
+  4: "acgrsu",
+  5: "ru"
 };
 
 var indexSectionNames =
 {
   0: "all",
-  1: "namespaces",
-  2: "files",
-  3: "functions"
+  1: "classes",
+  2: "namespaces",
+  3: "files",
+  4: "functions",
+  5: "variables"
 };
 
 var indexSectionLabels =
 {
   0: "All",
-  1: "Namespaces",
-  2: "Files",
-  3: "Functions"
+  1: "Data Structures",
+  2: "Namespaces",
+  3: "Files",
+  4: "Functions",
+  5: "Variables"
 };
 
