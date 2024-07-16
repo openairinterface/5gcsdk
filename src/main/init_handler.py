@@ -4,9 +4,12 @@ import subprocess
 import sys
 import psutil
 import logging
-
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(os.path.join(parent_dir, 'modules'))
 logging.basicConfig(level=logging.DEBUG)  
 logger = logging.getLogger(__name__)
+from CallbackManager import unregister_callback_ue
 
 def start_handler():
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -41,6 +44,8 @@ def stop_handler():
 
         if handler_pid is not None:
             proc = psutil.Process(handler_pid)
+            unregister_callback_ue()
+
             logger.debug(f"Command line of the process: {proc.cmdline()}")
             logger.info(f"Found handler.py with PID: {handler_pid}. Terminating it..")
             proc.terminate()

@@ -5,11 +5,8 @@ import logging
 import re
 from enum import Enum
 import ast
-class EventType(Enum):
-    REGISTERED_UES = "RegisteredUEs"
-    UE_STATUS = "UEStatus"
-    UE_CELL_ID = "UECellID"
-    UE_TRAFFIC = "UETraffic"
+from data_models.EventType import EventType
+
 
 def register_callback_ue(callback_function, event_type):
     """

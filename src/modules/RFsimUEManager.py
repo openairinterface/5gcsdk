@@ -27,16 +27,15 @@ def add_ues(nb_ues):
 
     # Assertions to prevent crashes
     assert isinstance(nb_ues, int), "nb_ues must be an integer"
-    assert 0 < nb_ues <= 10, "nb_ues must be between 1 and 10 inclusive"
+    assert 0 < nb_ues <= 10, "The number of UEs has exceeded the maximum limit."
 
     ues_list = ['oai-nr-ue', 'oai-nr-ue2', 'oai-nr-ue3', 'oai-nr-ue4', 'oai-nr-ue5', 'oai-nr-ue6', 'oai-nr-ue7', 'oai-nr-ue8', 'oai-nr-ue9', 'oai-nr-ue10']
     client = docker.from_env()
     containers = client.containers.list()
     existing_containers = [str(container.name) for container in containers]
-    
     try:
         home_dir = os.path.expanduser("~")
-        directory = os.path.join(home_dir, 'openairinterface5g-develop', 'ci-scripts', 'yaml_files', '5g_rfsimulator')
+        directory = os.path.join(home_dir, 'oai-cn5g-fed-master', 'docker-compose')
         assert os.path.isdir(directory), "The required directory does not exist"
         os.chdir(directory)
         
@@ -44,7 +43,7 @@ def add_ues(nb_ues):
         j = 0
         while i < nb_ues:
             if ('rfsim5g-' + str(ues_list[j])) not in existing_containers:
-                subprocess.run(['docker-compose', 'up', '-d', ues_list[j]], check=True)
+                subprocess.run(['docker-compose','-f','docker-compose-basic-vpp-nrf.yaml', 'up', '-d', ues_list[j]], check=True)
                 i += 1
             j += 1
 
@@ -83,7 +82,7 @@ def remove_ues(nb_ues):
 
     # Assertions to prevent crashes
     assert isinstance(nb_ues, int), "nb_ues must be an integer"
-    assert 0 < nb_ues <= 10, "nb_ues must be between 1 and 10 inclusive"
+    assert 0 < nb_ues <= 10, "The number of UEs has exceeded the maximum limit."
 
     ues_list = ['rfsim5g-oai-nr-ue', 'rfsim5g-oai-nr-ue2', 'rfsim5g-oai-nr-ue3', 'rfsim5g-oai-nr-ue4', 'rfsim5g-oai-nr-ue5', 'rfsim5g-oai-nr-ue6', 'rfsim5g-oai-nr-ue7', 'rfsim5g-oai-nr-ue8', 'rfsim5g-oai-nr-ue9', 'rfsim5g-oai-nr-ue10']
     client = docker.from_env()
@@ -110,4 +109,35 @@ def remove_ues(nb_ues):
     except AssertionError as error:
         logger.error(error)
 
+
+def list_connected_ues():
+    """
+    Lists all connected User Equipment (UE) containers.
+
+    This function retrieves and returns the list of currently running UE containers.
+
+    :return: A list of names of running UE containers.
+    :rtype: list
+
+    Usage Example:
+    --------------
+    >>> list_connected_ues()
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    logging.getLogger("docker.utils.config").setLevel(logging.WARN)
+    logging.getLogger("urllib3.connectionpool").setLevel(logging.WARN)
+
+    ues_list = ['rfsim5g-oai-nr-ue', 'rfsim5g-oai-nr-ue2', 'rfsim5g-oai-nr-ue3', 'rfsim5g-oai-nr-ue4', 'rfsim5g-oai-nr-ue5', 'rfsim5g-oai-nr-ue6', 'rfsim5g-oai-nr-ue7', 'rfsim5g-oai-nr-ue8', 'rfsim5g-oai-nr-ue9', 'rfsim5g-oai-nr-ue10']
+    client = docker.from_env()
+    containers = client.containers.list()
+    
+    connected_ues = [container.name for container in containers if container.name in ues_list]
+
+    if connected_ues:
+        logger.info("Connected UE containers: {}".format(connected_ues))
+    else:
+        logger.info("No UE containers are currently connected.")
+    
+    return connected_ues
 

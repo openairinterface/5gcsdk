@@ -71,35 +71,27 @@ logging.getLogger("urllib3.connectionpool").setLevel(logging.WARN)
 logging.getLogger('werkzeug').setLevel(logging.DEBUG)
 
 
-def check_mongodb_status():
-    try:
-        # Run the 'systemctl is-active mongod' command
-        result = subprocess.run(['systemctl', 'is-active', 'mongod'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        
-        # Check if MongoDB is active
-        if result.stdout.strip() == 'active':
-            return True
-        else:
-            return False
-    except Exception as e:
-        print(f"An error occurred: {e}")
-        return False
 
-mongodb_status=check_mongodb_status() 
-if  mongodb_status==False :
+
+try:
+    client = MongoClient('mongodb://localhost:27017/')
+    # Attempt to fetch server information to check connection
+    client.server_info()
+except errors.ServerSelectionTimeoutError:
     with open(status_file_path, 'r') as file:
         data = yaml.safe_load(file)
-    data['handler_status'] = 'off'  
-    data['handler_pid'] = 'None' 
+    data['handler_status'] = 'off'
+    data['handler_pid'] = 'None'
     with open(status_file_path, 'w') as file:
         yaml.safe_dump(data, file)
-    
-    assert False,  "Could not connect to MongoDB"
+    raise AssertionError("Failed to connect to MongoDB")
 
-client = MongoClient('mongodb://localhost:27017/')
 db = client['notification_db']
 amf_collection = db['amf_notifications']
+amf_location_collection=['amf_location_notification']
 smf_collection = db['smf_notifications']
+smf_traffic_collection = db['smf_notification_traffic']
+
 log.info("Successfully connected to MongoDB.")
 
 
@@ -118,12 +110,14 @@ clean_collections()
 # Initialize subscriptions
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = subscriptions.get_amf_subscription_url(amf_addr , amf_port , amf_url)
-amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port)
+amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "REGISTRATION_STATE_REPORT")
+amf_sub_location = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "LOCATION_REPORT")
+
 log.info("Subscribing to User Sessions Events from SMF")
 
 smf_endpoint = subscriptions.get_smf_subscription_url(smf_addr , smf_port , smf_url)
-smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port )
-
+smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "PDU_SES_EST" )
+smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON" )
 
 if amf_sub == "" or smf_sub == "":
     log.error("Subscription to CN events failed... Exiting \n check AMF and SMF connectivity")
@@ -180,6 +174,17 @@ def handle_registered_ue_callbacks():
             if callback_function:
                 callback_function(last_registered_user)
 
+def handle_ue_traffic_callbacks(volume):
+    home_dir = os.path.expanduser("~")
+    events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+    with open(events_json_path, 'r') as json_file:
+        data = json.load(json_file)
+    
+    for callback_name in data["events"]["UETraffic"]["callbacks"]:
+        callback_function = getattr(callbacks, callback_name, None)
+        if callback_function:
+            callback_function(volume)
+    
 def handle_changed_status_callbacks():
     global changed_status_dict
     latest_status_dict = {}
@@ -224,10 +229,25 @@ def receive_amf_notification():
     if request.method == 'POST':
         content = request.get_json(force=True)
         log.debug(content)
-        amf_collection.insert_one(content)
+
+        event_notifs = content.get('eventNotifs', [])
+        for notif in event_notifs:
+            event = notif.get('event', '')
+            if event == 'LOCATION_REPORT':
+                amf_location_collection.insert_one(notif)
+            else:
+                amf_collection.insert_one(notif)
+        
         importlib.reload(callbacks)
-        handle_registered_ue_callbacks()
-        handle_changed_status_callbacks()
+        try:
+            handle_registered_ue_callbacks()
+        except Exception as e:
+            log.error(f"Error in handle_registered_ue_callbacks: {e}")
+        
+        try:
+            handle_changed_status_callbacks()
+        except Exception as e:
+            log.error(f"Error in handle_changed_status_callbacks: {e}")
 
     return "OK"
 
@@ -238,12 +258,29 @@ def receive_smf_notification():
     if request.method == 'POST':
         content = request.get_json(force=True)
         log.debug(content)
-        smf_collection.insert_one(content)
+        
+        # Process the notifications based on the event type
+        event_notifs = content.get('eventNotifs', [])
+        for notif in event_notifs:
+            event = notif.get('event', '')
+            if event == 'QOS_MON':
+                smf_traffic_collection.insert_one(notif)
+                usage_report = notif.get('customized_data', {}).get('Usage Report', {})
+                volume_dict = {
+                    'Downlink': usage_report.get('Volume', {}).get('Downlink', 0),
+                    'Uplink': usage_report.get('Volume', {}).get('Uplink', 0)
+                }
+                try :
+                    handle_ue_traffic_callbacks(volume_dict)
+                except Exception as e:
+                    log.error(f"Error in handle_ue_traffic_callbacks: {e}")
+            else:
+                smf_collection.insert_one(notif)
 
     return "OK"
 
 app.config["DEBUG"] = False
-app.run(host='192.168.71.129', port=1112)
+app.run(host=sbi_addr, port=1112)
 
 # Define termination handler
 def terminator(signum, frame, ask=True):
