@@ -31,7 +31,7 @@ sys.path.append(os.path.join(parent_dir, 'modules/data_models'))
 #from EventType import EventType
 import RFsimUEManager 
 import UEManager 
-import CallbackManager 
+from CallbackManager import * 
 import NFManager 
 from init_handler import *
 start_handler()

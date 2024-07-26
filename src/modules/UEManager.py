@@ -3,20 +3,9 @@ from pymongo import MongoClient
 import re
 from enum import Enum
 from datetime import datetime
-
-
-class UE:
-    def __init__(self, supi, ad_ipv4_addr, ran_ue_ngap_id, rm_state, timestamp):
-        self.supi = supi
-        self.ad_ipv4_addr = ad_ipv4_addr
-        self.ran_ue_ngap_id = ran_ue_ngap_id
-        self.rm_state = rm_state
-        self.timestamp = timestamp
-
-    def __repr__(self):
-        return (f"UE(supi={self.supi}, ad_ipv4_addr={self.ad_ipv4_addr}, "
-                f"ran_ue_ngap_id={self.ran_ue_ngap_id}, rm_state={self.rm_state}, "
-                f"timestamp={self.timestamp})")
+from data_models.ue import UE
+from data_models.UEStatus import UEStatus
+from data_models.TrafficVolume import TrafficVolume
 
 def get_registered_ues():
     """
@@ -104,12 +93,7 @@ def get_registered_ues():
         logger.error("An error occurred: %s", e)
         return []
 
-class UEStatus(Enum):
-    REGISTERED = "REGISTERED"
-    DEREGISTERED = "DEREGISTERED"
-    UE_NOT_FOUND = "UE not found"
-    INVALID_INPUT = "Invalid IMSI or IP address"
-    ERROR = "Error occurred while retrieving UE status"
+
 
 def _is_valid_ipv4(ip):
     parts = ip.split(".")
@@ -243,12 +227,14 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
     >>> start_time = "2023-01-01 00:00:00"
     >>> end_time = "2023-01-02 00:00:00"
     >>> usage = get_ue_traffic(start_time, end_time)
-    >>> print(f"Total Uplink Data: {usage['total_uplink']} bytes")
-    >>> print(f"Total Downlink Data: {usage['total_downlink']} bytes")
+    >>> print(f"Total Uplink Data: {usage[TrafficVolume.TOTAL_UPLINK]} bytes")
+    >>> print(f"Total Downlink Data: {usage[TrafficVolume.TOTAL_DOWNLINK]} bytes")
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     
+    logger.info(f"Retrieving UE traffic from {start_time} to {end_time} for SUPI: {ue_supi}")
+
     # Ensure start_time is less than or equal to end_time
     assert start_time <= end_time, "Start time must be less than or equal to end time"
     
@@ -277,6 +263,8 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
         except ValueError as e:
             raise ValueError("Invalid date format. Use 'YYYY-MM-DD HH:MM:SS'.") from e
     
+    logger.info(f"Converted start_time: {start_timestamp}, end_time: {end_timestamp}")
+
     # Create the query filter
     query = {
         'timeStamp': {'$gte': str(start_timestamp), '$lte': str(end_timestamp)}
@@ -284,14 +272,16 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
     
     if ue_supi:
         query['supi'] = ue_supi
+    
+    logger.info(f"Query: {query}")
 
     # Retrieve records from the database
     try:
         records = smf_traffic_collection.find(query)
     except Exception as e:
+        logger.error(f"Failed to retrieve records from MongoDB: {str(e)}")
         raise RuntimeError(f"Failed to retrieve records from MongoDB: {str(e)}") from e
 
-    # Sum up the uplink and downlink volumes
     total_uplink = 0
     total_downlink = 0
     for record in records:
@@ -299,5 +289,10 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
         total_uplink += usage_report.get('Volume', {}).get('Uplink', 0)
         total_downlink += usage_report.get('Volume', {}).get('Downlink', 0)
     
+    logger.info(f"Total Uplink: {total_uplink} bytes, Total Downlink: {total_downlink} bytes")
+
     # Return the results
-    return {'total_uplink': total_uplink, 'total_downlink': total_downlink}
+    return {
+        TrafficVolume.TOTAL_UPLINK: total_uplink,
+        TrafficVolume.TOTAL_DOWNLINK: total_downlink
+    }

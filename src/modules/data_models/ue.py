@@ -1,31 +1,12 @@
-import time
-import uuid
-import json 
-
 class UE:
-    def __init__(self, imsi, ngapId) -> None:
-        self._imsi = imsi
-        self._ngapId = ngapId
-        self._ips = []
-        
-    def append_ip(self, ip):
-        if not self.has_ip(ip):
-            self._ips.append(ip)
-        return
-    
-    def has_ip(self, ip):
-        return ip in self._ips
-    
-    def update_ngap_id(self, ngapid):
-        self._ngapId = ngapid
-        
-    def to_http_response(self, ip):
-        return {
-            "req_id": str(uuid.uuid1()),
-            "ue_ip" : ip,
-            "imsi"  : self._imsi,
-            "ngap_id": self._ngapId,
-            "timestamp": time.time(),
-            "ips": self._ips
-        }
-  
+    def __init__(self, supi, ad_ipv4_addr, ran_ue_ngap_id, rm_state, timestamp):
+        self.supi = supi
+        self.ad_ipv4_addr = ad_ipv4_addr
+        self.ran_ue_ngap_id = ran_ue_ngap_id
+        self.rm_state = rm_state
+        self.timestamp = timestamp
+
+    def __repr__(self):
+        return (f"UE(supi={self.supi}, ad_ipv4_addr={self.ad_ipv4_addr}, "
+                f"ran_ue_ngap_id={self.ran_ue_ngap_id}, rm_state={self.rm_state}, "
+                f"timestamp={self.timestamp})")
