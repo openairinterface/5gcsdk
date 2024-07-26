@@ -9,3 +9,6 @@ smf_1:
   url: /nsmf_event-exposure/v1
   ip: 192.168.70.133
   port: 8080
+nwdaf-sbi:
+  name: oai-nwdaf-nbi-gateway
+  url: /nnwdaf-eventssubscription/v1

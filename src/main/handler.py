@@ -26,12 +26,12 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(os.path.join(parent_dir, 'modules'))
 sys.path.append(os.path.join(parent_dir, 'subscriptions_manager'))
-
+from data_models.Metric import Metric
 import callbacks as callbacks
 import signal
 import requests
 import subprocess
-from flask import Flask, request
+from flask import Flask, request , jsonify
 from pymongo import MongoClient , errors
 import subscriptions as subscriptions
 import logging
@@ -48,16 +48,19 @@ status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
 with open(config_file_path, 'r') as f:
     data = yaml.load(f, Loader=SafeLoader)
 
-sbi_addr = data['sbi']['ip']
-sbi_port    = data['sbi']['port']
+sbi_addr  = data['sbi']['ip']
+sbi_port  = data['sbi']['port']
 
-amf_addr= data['amf_1']['ip']
-amf_url = data['amf_1']['url']
-amf_port= data['amf_1']['port']
+amf_addr  = data['amf_1']['ip']
+amf_url   = data['amf_1']['url']
+amf_port  = data['amf_1']['port']
 
-smf_addr= data['smf_1']['ip']
-smf_url = data['smf_1']['url']
-smf_port= data['smf_1']['port']
+smf_addr  = data['smf_1']['ip']
+smf_url   = data['smf_1']['url']
+smf_port  = data['smf_1']['port']
+
+nwdaf_name= data['nwdaf-sbi']['name']
+nwdaf_url =  data['nwdaf-sbi']['url']
 
 
 changed_status_dict = {}
@@ -88,9 +91,10 @@ except errors.ServerSelectionTimeoutError:
 
 db = client['notification_db']
 amf_collection = db['amf_notifications']
-amf_location_collection= db['amf_location_notification']
+amf_location_collection=db['amf_location_notification']
 smf_collection = db['smf_notifications']
 smf_traffic_collection = db['smf_notification_traffic']
+nwdaf_location_collection= db['nwdaf_location_traffic']
 
 log.info("Successfully connected to MongoDB.")
 
@@ -104,12 +108,15 @@ log.info("Successfully connected to MongoDB.")
 def clean_collections():
     amf_collection.delete_many({})
     smf_collection.delete_many({})
-    amf_location_collection.delete_many({})
     smf_traffic_collection.delete_many({})
+    amf_location_collection.delete_many({})
+    nwdaf_location_collection.delete_many({})
     log.info("Collections cleaned.")
     
 clean_collections()
-# Initialize subscriptions
+
+# -------------------Initialize CN_subscriptions----------------------------------------------------------------
+
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = subscriptions.get_amf_subscription_url(amf_addr , amf_port , amf_url)
 amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "REGISTRATION_STATE_REPORT")
@@ -133,21 +140,35 @@ if amf_sub == "" or smf_sub == "":
         
     assert False, "Subscription to CN events failed"
 
+#--------------------------Initialize_NWDAF_subscriptions-------------------------------------------------------
+log.info("Subscribing to NWDAF network performance")
+net_per_endpoint = subscriptions.get_network_performance_subscription_url(nwdaf_name, nwdaf_url)
+net_per_sub = subscriptions.create_network_performance_subscription(net_per_endpoint, sbi_addr , sbi_port , nwdaf_url)
+
+log.info("Subscribing to NWDAF anomaly")
+anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
+anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
+
+log.info("Subscribing to NWDAF track UE location")
+track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
+track_ue_sub = subscriptions.create_track_ue_location(sbi_addr, sbi_port, track_ue_endpoint, nwdaf_url )
+
 def connected_ues():
 
     existing_users = {}
 
     for document in amf_collection.find():
-        supi = document["supi"]
-        ran_ue_ngap_id = document["ranUeNgapId"]
-        rm_state = document["rmInfoList"][0]["rmState"]
-        timestamp = document["timeStamp"]
+        for report in document["reportList"]:
+            supi = report["supi"]
+            ran_ue_ngap_id = report["ranUeNgapId"]
+            rm_state = report["rmInfoList"][0]["rmState"]
+            timestamp = report["timeStamp"]
 
-        if supi in existing_users:
-            if timestamp > existing_users[supi]['timestamp']:
+            if supi in existing_users:
+                if timestamp > existing_users[supi]['timestamp']:
+                    existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
+            else:
                 existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
-        else:
-            existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
 
     keys_to_remove = []
     
@@ -159,6 +180,7 @@ def connected_ues():
         existing_users.pop(key)
     
     return existing_users
+
 
 # handle the callbacks for registered UEs
 def handle_registered_ue_callbacks():
@@ -191,18 +213,19 @@ def handle_changed_status_callbacks():
     latest_status_dict = {}
 
     for document in amf_collection.find():
-        supi = document["supi"]
-        ran_ue_ngap_id_amf = document["ranUeNgapId"]
-        rm_state_amf = document["rmInfoList"][0]["rmState"]
-        timestamp = document["timeStamp"]
+        for report in document["reportList"]:
+            supi = report["supi"]
+            ran_ue_ngap_id_amf = report["ranUeNgapId"]
+            rm_state_amf = report["rmInfoList"][0]["rmState"]
+            timestamp = report["timeStamp"]
 
-        if supi not in latest_status_dict or timestamp > latest_status_dict[supi]['timestamp_amf']:
-            latest_status_dict[supi] = {
-                'supi': supi,
-                'ranUeNgapId_amf': ran_ue_ngap_id_amf,
-                'rmState_amf': rm_state_amf,
-                'timestamp_amf': timestamp
-            }
+            if supi not in latest_status_dict or timestamp > latest_status_dict[supi]['timestamp_amf']:
+                latest_status_dict[supi] = {
+                    'supi': supi,
+                    'ranUeNgapId_amf': ran_ue_ngap_id_amf,
+                    'rmState_amf': rm_state_amf,
+                    'timestamp_amf': timestamp
+                }
 
     for supi, status in latest_status_dict.items():
         if supi in changed_status_dict:
@@ -211,6 +234,7 @@ def handle_changed_status_callbacks():
 
                 current_dir = os.path.dirname(os.path.abspath(__file__))
                 events_json_path = os.path.join(current_dir, '..', 'modules', 'events.json')
+
                 with open(events_json_path, 'r') as json_file:
                     data = json.load(json_file)
 
@@ -233,20 +257,20 @@ def receive_amf_notification():
         for notif in event_notifs:
             event = notif.get('type', '')
             if event == 'LOCATION_REPORT':
-                amf_location_collection.insert_one(notif)
+                amf_location_collection.insert_one(content)
             else:
-                amf_collection.insert_one(notif)
-        
-        importlib.reload(callbacks)
-        try:
-            handle_registered_ue_callbacks()
-        except Exception as e:
-            log.error(f"Error in handle_registered_ue_callbacks: {e}")
-        
-        try:
-            handle_changed_status_callbacks()
-        except Exception as e:
-            log.error(f"Error in handle_changed_status_callbacks: {e}")
+                if event == 'REGISTRATION_STATE_REPORT':
+                    amf_collection.insert_one(content)
+                try:
+                    importlib.reload(callbacks)
+                    handle_registered_ue_callbacks()
+                except Exception as e:
+                    log.error(f"Error in handle_registered_ue_callbacks: {e}")
+                
+                try:
+                    handle_changed_status_callbacks()
+                except Exception as e:
+                    log.error(f"Error in handle_changed_status_callbacks: {e}")
 
     return "OK"
 
@@ -263,23 +287,55 @@ def receive_smf_notification():
         for notif in event_notifs:
             event = notif.get('event', '')
             if event == 'QOS_MON':
-                smf_traffic_collection.insert_one(notif)
+                smf_traffic_collection.insert_one(content)
                 usage_report = notif.get('customized_data', {}).get('Usage Report', {})
                 volume_dict = {
                     'Downlink': usage_report.get('Volume', {}).get('Downlink', 0),
                     'Uplink': usage_report.get('Volume', {}).get('Uplink', 0)
                 }
+                
+                importlib.reload(callbacks)
+
                 try :
                     handle_ue_traffic_callbacks(volume_dict)
                 except Exception as e:
                     log.error(f"Error in handle_ue_traffic_callbacks: {e}")
             else:
-                smf_collection.insert_one(notif)
+                smf_collection.insert_one(content)
 
     return "OK"
 
-app.config["DEBUG"] = False
-app.run(host=sbi_addr, port=1112)
+
+@app.route('/notification', methods=[ 'POST'])
+
+def receive_location_notification():
+    if request.method == 'POST':
+        content = request.get_json(force=True)
+        log.debug(content)
+        return "OK"
+
+
+@app.route('/anomaly_notification', methods=['POST'])
+def receive_anomaly_notification():
+    content = request.get_json(force=True)
+    log.info('ANOMALY')
+    log.info(content)
+    return "OK"
+
+@app.route('/network_performance_notification', methods=['POST'])
+def receive_network_performance_notification():
+    global net_perf_res
+    if request.method == 'POST':
+        content = request.get_json(force=True)
+        log.info('NETWORK PERFORMANCE')
+        log.info(content)
+        return "OK"
+    
+
+
+
+if __name__ == "__main__":
+    app.run(host=sbi_addr, port=1112,debug=False )
 
 # Define termination handler
 def terminator(signum, frame, ask=True):
@@ -294,6 +350,22 @@ def terminator(signum, frame, ask=True):
         url = smf_sub
         response = requests.delete(url)
         log.info(f"SMF Subscription delete status code: {response.status_code}")
+    
+    if net_per_sub != "":
+        url = net_per_sub
+        response = requests.delete(url)
+        log.info(f"Network Performance Subscription delete status code: {response.status_code}")
+
+    if anomaly_sub != "":
+        url = anomaly_sub
+        response = requests.delete(url)
+        log.info(f"Anomaly Subscription delete status code: {response.status_code}")
+
+    if track_ue_sub != "":
+        url = track_ue_sub
+        response = requests.delete(url)
+        log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
+
 
 signal.signal(signal.SIGTERM, terminator)
 signal.signal(signal.SIGINT, terminator)
