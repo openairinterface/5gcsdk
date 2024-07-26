@@ -34,16 +34,15 @@ def add_ues(nb_ues):
     containers = client.containers.list()
     existing_containers = [str(container.name) for container in containers]
     try:
-        home_dir = os.path.expanduser("~")
-        directory = os.path.join(home_dir, 'oai-cn5g-fed-master', 'docker-compose')
+        home_dir = os.path.dirname(os.path.abspath(__file__))
+        directory = os.path.normpath(os.path.join(home_dir, '../../../template/northbound_templates/'))
         assert os.path.isdir(directory), "The required directory does not exist"
-        os.chdir(directory)
-        
+        docker_compose_file = os.path.join(directory,'docker-compose-northbound.yaml')
         i = 0
         j = 0
         while i < nb_ues:
             if ('rfsim5g-' + str(ues_list[j])) not in existing_containers:
-                subprocess.run(['docker-compose','-f','docker-compose-basic-vpp-nrf.yaml', 'up', '-d', ues_list[j]], check=True)
+                subprocess.run(['docker-compose','-f',docker_compose_file, 'up', '-d', ues_list[j]], check=True)
                 i += 1
             j += 1
 
@@ -140,4 +139,3 @@ def list_connected_ues():
         logger.info("No UE containers are currently connected.")
     
     return connected_ues
-

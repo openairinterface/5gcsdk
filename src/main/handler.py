@@ -88,7 +88,7 @@ except errors.ServerSelectionTimeoutError:
 
 db = client['notification_db']
 amf_collection = db['amf_notifications']
-amf_location_collection=['amf_location_notification']
+amf_location_collection= db['amf_location_notification']
 smf_collection = db['smf_notifications']
 smf_traffic_collection = db['smf_notification_traffic']
 
@@ -104,6 +104,8 @@ log.info("Successfully connected to MongoDB.")
 def clean_collections():
     amf_collection.delete_many({})
     smf_collection.delete_many({})
+    amf_location_collection.delete_many({})
+    smf_traffic_collection.delete_many({})
     log.info("Collections cleaned.")
     
 clean_collections()
@@ -136,17 +138,16 @@ def connected_ues():
     existing_users = {}
 
     for document in amf_collection.find():
-        for report in document["reportList"]:
-            supi = report["supi"]
-            ran_ue_ngap_id = report["ranUeNgapId"]
-            rm_state = report["rmInfoList"][0]["rmState"]
-            timestamp = report["timeStamp"]
+        supi = document["supi"]
+        ran_ue_ngap_id = document["ranUeNgapId"]
+        rm_state = document["rmInfoList"][0]["rmState"]
+        timestamp = document["timeStamp"]
 
-            if supi in existing_users:
-                if timestamp > existing_users[supi]['timestamp']:
-                    existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
-            else:
+        if supi in existing_users:
+            if timestamp > existing_users[supi]['timestamp']:
                 existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
+        else:
+            existing_users[supi] = {'supi': supi, 'ran_ue_ngap_id': ran_ue_ngap_id, 'rm_state': rm_state, 'timestamp': timestamp}
 
     keys_to_remove = []
     
@@ -161,8 +162,8 @@ def connected_ues():
 
 # handle the callbacks for registered UEs
 def handle_registered_ue_callbacks():
-    home_dir = os.path.expanduser("~")
-    events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    events_json_path = os.path.join(current_dir, '..', 'modules', 'events.json')
     with open(events_json_path, 'r') as json_file:
         data = json.load(json_file)
     registered_users = connected_ues()
@@ -175,8 +176,8 @@ def handle_registered_ue_callbacks():
                 callback_function(last_registered_user)
 
 def handle_ue_traffic_callbacks(volume):
-    home_dir = os.path.expanduser("~")
-    events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    events_json_path = os.path.join(current_dir, '..', 'modules', 'events.json')
     with open(events_json_path, 'r') as json_file:
         data = json.load(json_file)
     
@@ -190,28 +191,26 @@ def handle_changed_status_callbacks():
     latest_status_dict = {}
 
     for document in amf_collection.find():
-        for report in document["reportList"]:
-            supi = report["supi"]
-            ran_ue_ngap_id_amf = report["ranUeNgapId"]
-            rm_state_amf = report["rmInfoList"][0]["rmState"]
-            timestamp = report["timeStamp"]
+        supi = document["supi"]
+        ran_ue_ngap_id_amf = document["ranUeNgapId"]
+        rm_state_amf = document["rmInfoList"][0]["rmState"]
+        timestamp = document["timeStamp"]
 
-            if supi not in latest_status_dict or timestamp > latest_status_dict[supi]['timestamp_amf']:
-                latest_status_dict[supi] = {
-                    'supi': supi,
-                    'ranUeNgapId_amf': ran_ue_ngap_id_amf,
-                    'rmState_amf': rm_state_amf,
-                    'timestamp_amf': timestamp
-                }
+        if supi not in latest_status_dict or timestamp > latest_status_dict[supi]['timestamp_amf']:
+            latest_status_dict[supi] = {
+                'supi': supi,
+                'ranUeNgapId_amf': ran_ue_ngap_id_amf,
+                'rmState_amf': rm_state_amf,
+                'timestamp_amf': timestamp
+            }
 
     for supi, status in latest_status_dict.items():
         if supi in changed_status_dict:
             if status['rmState_amf'] != changed_status_dict[supi]['rmState_amf']:
                 temp_dict = {supi: status}
 
-                home_dir = os.path.expanduser("~")
-                events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
-
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                events_json_path = os.path.join(current_dir, '..', 'modules', 'events.json')
                 with open(events_json_path, 'r') as json_file:
                     data = json.load(json_file)
 
@@ -230,9 +229,9 @@ def receive_amf_notification():
         content = request.get_json(force=True)
         log.debug(content)
 
-        event_notifs = content.get('eventNotifs', [])
+        event_notifs = content.get('reportList', [])
         for notif in event_notifs:
-            event = notif.get('event', '')
+            event = notif.get('type', '')
             if event == 'LOCATION_REPORT':
                 amf_location_collection.insert_one(notif)
             else:
