@@ -11,6 +11,9 @@
         },
         "UETraffic": {
             "callbacks": []
+        },
+        "DataStream": {
+            "callbacks": []
         }
     }
 }

@@ -6,6 +6,8 @@ from datetime import datetime
 from data_models.ue import UE
 from data_models.UEStatus import UEStatus
 from data_models.TrafficVolume import TrafficVolume
+from data_models.location import location as loc
+
 
 def get_registered_ues():
     """
@@ -217,7 +219,7 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
     :param ue_supi: Optional. UE SUPI (Subscription Permanent Identifier) to filter data usage by a specific UE.
     :type ue_supi: str, optional
     :return: Dictionary containing the total uplink and downlink data volumes.
-    :rtype: dict
+    :rtype: enum
     :raises AssertionError: If the required MongoDB collections ('smf_notification_traffic' or 'smf_notifications') are not found in the database.
     :raises ValueError: If the date strings provided for start_time or end_time are not in the correct format.
     :raises RuntimeError: If there are any issues in querying the MongoDB database.
@@ -296,3 +298,68 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
         TrafficVolume.TOTAL_UPLINK: total_uplink,
         TrafficVolume.TOTAL_DOWNLINK: total_downlink
     }
+
+
+
+def get_ue_location(imsi):
+    """
+    Retrieves the NR Cell ID for a given IMSI from the MongoDB database, considering the latest timestamp.
+
+    :param imsi: The IMSI of the UE.
+    :type imsi: str
+    :return: The NR Cell ID if found and registered, otherwise an appropriate message.
+    :rtype: str
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
+    try:
+        client = MongoClient('mongodb://localhost:27017/')
+        logging.getLogger('pymongo').setLevel(logging.WARNING)
+        
+        db = client['notification_db']
+        assert 'amf_location_notification' in db.list_collection_names(), "amf_notifications collection not found"
+
+        amf_collection = db['amf_location_notification']
+        latest_timestamp = 0
+        latest_nr_cell_id = None
+
+        for document in amf_collection.find():
+            assert document is not None, "No documents found in amf_notifications collection"
+            report = document["reportList"][0]
+
+            try:
+                assert report is not None, "No reports found in document"
+                supi = report["supi"]
+                if supi == imsi:
+                    timestamp = report.get("timeStamp", 0)
+                    if timestamp > latest_timestamp:
+                        ue_status = get_ue_status(supi)
+                        if ue_status == UEStatus.REGISTERED:
+                            location = report.get('location', {})
+                            latest_timestamp = timestamp
+                            latest_nr_cell_id= location['nrLocation']['ncgi']['nrCellId']
+                            latest_tac= location['nrLocation']['tai']['tac']
+
+            except KeyError as e:
+                logger.error(f"KeyError: {e} in report: {report}")
+            except Exception as e:
+                logger.error(f"Unexpected error: {e} in report: {report}")
+        
+        if latest_nr_cell_id is not None and latest_tac is not None:
+
+            return  {
+        loc.CELL_ID: latest_nr_cell_id,
+        loc.TAC: latest_tac
+    }
+
+        return "No registered UE found with this SUPI"
+    
+    except AssertionError as error:
+        logger.error(error)
+        return "Collection or document not found"
+    
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        return "An error occurred while retrieving the NR Cell ID"
+

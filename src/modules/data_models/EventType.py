@@ -5,3 +5,4 @@ class EventType(Enum):
     UE_STATUS = "UEStatus"
     UE_CELL_ID = "UECellID"
     UE_TRAFFIC = "UETraffic"
+    DATA_STREAM = "DataStream"

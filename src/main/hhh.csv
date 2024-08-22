@@ -1,0 +1,2 @@
+raw_id,imsi,amf_ngap_id,gnb_ngap_id,registration_status,ip_address,dnn,sd,sst
+1,imsi-208990000000031,3,1,DEREGISTERED,12.1.1.130,oai,16777215,1

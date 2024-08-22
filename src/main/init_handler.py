@@ -4,13 +4,14 @@ import subprocess
 import sys
 import psutil
 import logging
+from datetime import datetime
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(os.path.join(parent_dir, 'modules'))
 logging.basicConfig(level=logging.DEBUG)  
 logger = logging.getLogger(__name__)
 from CallbackManager import unregister_callback_ue
-
+import datamanager as datastream
 def start_handler():
     current_dir = os.path.dirname(os.path.abspath(__file__))
     status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
@@ -32,7 +33,7 @@ def start_handler():
         else:
             logger.debug("Handler process file not found.")
 
-def stop_handler():
+def stop_handler(data_stream=False):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
 
@@ -45,6 +46,11 @@ def stop_handler():
         if handler_pid is not None:
             proc = psutil.Process(handler_pid)
             unregister_callback_ue()
+            if data_stream== True :  
+                data_stream=datastream.create_data_stream()
+                current_date = datetime.now().date()
+                filename= 'CN_traffic_'+ str(current_date)+'.csv'
+                datastream.save_data_to_csv(data_stream ,filename )   
 
             logger.debug(f"Command line of the process: {proc.cmdline()}")
             logger.info(f"Found handler.py with PID: {handler_pid}. Terminating it..")

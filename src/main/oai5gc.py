@@ -29,7 +29,9 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(os.path.join(parent_dir, 'modules'))
 sys.path.append(os.path.join(parent_dir, 'modules/data_models'))
 #from EventType import EventType
+
 import RFsimUEManager 
+from datamanager import *
 import UEManager 
 from CallbackManager import * 
 import NFManager 

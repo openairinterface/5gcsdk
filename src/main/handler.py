@@ -31,14 +31,19 @@ import callbacks as callbacks
 import signal
 import requests
 import subprocess
+import datamanager as datastream
 from flask import Flask, request , jsonify
 from pymongo import MongoClient , errors
 import subscriptions as subscriptions
+
 import logging
 import json
 import importlib
 import yaml
 from yaml.loader import SafeLoader
+import operator
+from data_models.ue import UE
+
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(os.path.dirname(current_dir))
@@ -64,7 +69,25 @@ nwdaf_url =  data['nwdaf-sbi']['url']
 
 
 changed_status_dict = {}
-
+changed_cellid_dict = {}
+data_selection = [
+        Metric.timestamp,
+        Metric.data_ul,
+        Metric.data_dl,
+        Metric.number_pkts_ul,
+        Metric.number_pkts_dl,
+        Metric.connectivity_status,
+        Metric.ip_address,
+        Metric.imsi,
+        Metric.dnn,
+        Metric.sst,
+        Metric.sd,
+        Metric.plmn,
+        Metric.amf_ngap_id,
+        Metric.gnb_ngap_id,
+        Metric.cell_id,
+        Metric.registration_status
+]
 app = Flask(__name__)
 logging.basicConfig(level=logging.DEBUG)
 log = logging.getLogger(__name__)
@@ -126,7 +149,7 @@ log.info("Subscribing to User Sessions Events from SMF")
 
 smf_endpoint = subscriptions.get_smf_subscription_url(smf_addr , smf_port , smf_url)
 smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "PDU_SES_EST" )
-smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON" )
+#smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON" )
 
 if amf_sub == "" or smf_sub == "":
     log.error("Subscription to CN events failed... Exiting \n check AMF and SMF connectivity")
@@ -181,11 +204,116 @@ def connected_ues():
     
     return existing_users
 
+def create_row_stream():
+    """
+    Create a new data stream
+    
+    Parameters:
+    data_selection (list): List of metrics to be selected
+    filters (list): List of filters to be applied to the data stream: [(metric, operator, value), ...]
+    callback (function): Callback function to be called when data is received
+
+    Returns:
+    DataStream: DataStream object
+    """
+    client = MongoClient('mongodb://localhost:27017/')
+    db = client['notification_db']
+    amf_collection = db['amf_notifications']
+    amf_location_collection = db['amf_location_notification']
+    smf_collection = db['smf_notifications']
+    smf_traffic_collection = db['smf_notification_traffic']
+    processed_data = []
+    existing_ues = []
+    filtered_data=[]
+    registration_state_report={}
+
+    for document in amf_collection.find():
+        for report in document["reportList"]:
+            latest_timestamp=0
+            supi = report["supi"]
+            if supi not in existing_ues:
+                existing_ues.append(supi)
+
+    # Retrieve data from AMF collection
+    for document in amf_collection.find():
+        for report in document["reportList"]:
+            for supi in existing_ues :
+                timestamp = report["timeStamp"]
+
+                if report["supi"]==supi and timestamp>latest_timestamp :
+                    latest_timestamp= timestamp
+                    registration_state_report[supi] = {
+                        'amf_ngap_id': report['amfUeNgapId'],
+                        'gnb_ngap_id': report['ranUeNgapId'],
+                        'registration_status': report['rmInfoList'][0]['rmState'],
+                    }
+
+    latest_timestamp=0
+    for document in smf_collection.find():
+        for report in document["eventNotifs"]:
+            for supi in existing_ues :
+                timestamp = report["timeStamp"]
+                imsi=str('imsi-')+str(report["supi"])
+                if str(imsi)==str(supi) and int(timestamp)>int(latest_timestamp) :
+                    latest_timestamp= timestamp
+                    registration_state_report[supi].update( {
+                        'ip_address': report['adIpv4Addr'],
+                        'dnn': report['dnn'],
+                        'sd': report['snssai']['sd'],
+                        'sst': report['snssai']['sst'],
+
+                    })
+
+    latest_timestamp=0
+    for document in amf_location_collection.find():
+        for report in document["reportList"]:
+            for supi in existing_ues :
+                timestamp = report["timeStamp"]
+
+                if report["supi"]==supi and int(timestamp)>int(latest_timestamp) :
+                    latest_timestamp= timestamp
+                    registration_state_report[supi].update( {
+                        'cell_id': report['location']['nrLocation']['tai']['tac'],
+                        'plmn': report['location']['nrLocation']['globalGnbId']['plmnId'],
+
+                    })
+    
+    latest_timestamp=0
+    for document in smf_traffic_collection.find():
+        for report in document["eventNotifs"]:
+            for supi in existing_ues :
+                timestamp = report["timeStamp"]
+                imsi=str('imsi-')+str(report["supi"])
+                if str(imsi)==str(supi) and int(timestamp)>int(latest_timestamp) :
+                    latest_timestamp= timestamp
+                    registration_state_report[supi].update( {
+                        'number_pkts_dl': report['customized_data']['Usage Report']['NoP']['Downlink'],
+                        'number_pkts_ul': report['customized_data']['Usage Report']['NoP']['Uplink'],
+                        'data_dl'       : report['customized_data']['Usage Report']['Volume']['Downlink'],
+                        'data_ul'       : report['customized_data']['Usage Report']['Volume']['Uplink'],
+                    })
+
+    # Initialize a counter
+
+    # Create the data_bank with an additional 'row_number' field
+    data_bank = [
+        {
+            'row_number': counter,
+            'imsi': supi,
+            **data
+        }
+        for counter, (supi, data) in enumerate(registration_state_report.items(), start=1)
+    ]
+   
+    return data_bank[-1]
+    
+
 
 # handle the callbacks for registered UEs
 def handle_registered_ue_callbacks():
     home_dir = os.path.expanduser("~")
     events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+
     with open(events_json_path, 'r') as json_file:
         data = json.load(json_file)
     registered_users = connected_ues()
@@ -246,6 +374,55 @@ def handle_changed_status_callbacks():
 
         changed_status_dict[supi] = status
 
+def handle_changed_cellid_callbacks():
+    global changed_cellid_dict
+    latest_cellid_dict = {}
+
+    for document in amf_location_collection.find():
+        for report in document["reportList"]:
+            supi = report["supi"]
+            location = report.get('location', {})
+            cell_id= location['nrLocation']['tai']['tac']
+            timestamp = report["timeStamp"]
+
+            if supi not in latest_cellid_dict or timestamp > latest_cellid_dict[supi]['timestamp']:
+                latest_cellid_dict[supi] = {
+                    'supi': supi,
+                    'cellId': cell_id,
+                    'timestamp': timestamp
+                }
+
+    for supi, status in latest_cellid_dict.items():
+        if supi in changed_cellid_dict:
+            if status['cellId'] != changed_cellid_dict[supi]['cellId']:
+                temp_dict = {supi: status}
+
+                home_dir = os.path.expanduser("~")
+                events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+
+                with open(events_json_path, 'r') as json_file:
+                    data = json.load(json_file)
+
+                if data["events"]["CellIDChange"]["callbacks"]:
+                    for callback_name in data["events"]["CellIDChange"]["callbacks"]:
+                        callback_function = getattr(callbacks, callback_name, None)
+                        if callback_function:
+                            callback_function(temp_dict)
+
+        changed_cellid_dict[supi] = status
+
+def handle_data_stream_callbacks(datastream):
+    home_dir = os.path.expanduser("~")
+    events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+    with open(events_json_path, 'r') as json_file:
+        data = json.load(json_file)
+    
+    for callback_name in data["events"]["DataStream"]["callbacks"]:
+        callback_function = getattr(callbacks, callback_name, None)
+        if callback_function:
+            callback_function(datastream)
+    
+
 # Route for AMF notifications
 @app.route('/callbacks/amf-reports', methods=['POST'])
 def receive_amf_notification():
@@ -256,14 +433,53 @@ def receive_amf_notification():
         event_notifs = content.get('reportList', [])
         for notif in event_notifs:
             event = notif.get('type', '')
+
             if event == 'LOCATION_REPORT':
                 amf_location_collection.insert_one(content)
+                try:
+                    importlib.reload(callbacks)
+                    handle_changed_cellid_callbacks()
+
+                except Exception as e:
+                    log.error(f"Error in handle_changed_cellid_callbacks: {e}")
+                
             else:
                 if event == 'REGISTRATION_STATE_REPORT':
                     amf_collection.insert_one(content)
+                    for notif in event_notifs:
+                        rminfolist=notif.get('rmInfoList',[])[0]
+                        status=rminfolist.get('rmState', '')
+
+                    if status== 'DEREGISTERED' :
+                        row_stream= create_row_stream()
+                        ue_instance = UE(
+                                            supi=row_stream.get('imsi', ''),
+                                            ad_ipv4_addr=row_stream.get('ip_address', ''),
+                                            ran_ue_ngap_id=row_stream.get('gnb_ngap_id', ''),
+                                            rm_state=row_stream.get('registration_status', ''),
+                                             timestamp=row_stream.get('timestamp', ''),
+                                            amf_ngap_id=row_stream.get('amf_ngap_id', ''),
+                                            plmn=row_stream.get('plmn', ''),
+                                            cell_id=row_stream.get('cell_id', ''),
+                                            sd=row_stream.get('sd', ''),
+                                            sst=row_stream.get('sst', ''),
+                                            dnn=row_stream.get('dnn', ''),
+                                            number_pkts_dl=row_stream.get('number_pkts_dl', ''),
+                                            number_pkts_ul=row_stream.get('number_pkts_ul', ''),
+                                            data_ul=row_stream.get('data_ul', ''),
+                                            data_dl=row_stream.get('data_dl', '')
+                                        )
+                        try:
+                            importlib.reload(callbacks)
+                            handle_data_stream_callbacks(ue_instance)
+
+                        except Exception as e:
+                            log.error(f"Error in handle_data_stream_callbacks: {e}")
+
                 try:
                     importlib.reload(callbacks)
                     handle_registered_ue_callbacks()
+
                 except Exception as e:
                     log.error(f"Error in handle_registered_ue_callbacks: {e}")
                 
@@ -302,6 +518,32 @@ def receive_smf_notification():
                     log.error(f"Error in handle_ue_traffic_callbacks: {e}")
             else:
                 smf_collection.insert_one(content)
+
+        row_stream= create_row_stream()
+        ue_instance = UE(
+                            supi=row_stream.get('imsi', ''),
+                            ad_ipv4_addr=row_stream.get('ip_address', ''),
+                            ran_ue_ngap_id=row_stream.get('gnb_ngap_id', ''),
+                            rm_state=row_stream.get('registration_status', ''),
+                            timestamp=row_stream.get('timestamp', ''),
+                            amf_ngap_id=row_stream.get('amf_ngap_id', ''),
+                            plmn=row_stream.get('plmn', ''),
+                            cell_id=row_stream.get('cell_id', ''),
+                            sd=row_stream.get('sd', ''),
+                            sst=row_stream.get('sst', ''),
+                            dnn=row_stream.get('dnn', ''),
+                            number_pkts_dl=row_stream.get('number_pkts_dl', ''),
+                            number_pkts_ul=row_stream.get('number_pkts_ul', ''),
+                            data_ul=row_stream.get('data_ul', ''),
+                            data_dl=row_stream.get('data_dl', '')
+                        )   
+        try:
+            importlib.reload(callbacks)
+            handle_data_stream_callbacks(ue_instance)
+
+        except Exception as e:
+            log.error(f"Error in handle_data_stream_callbacks: {e}")
+
 
     return "OK"
 
