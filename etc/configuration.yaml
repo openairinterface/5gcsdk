@@ -1,0 +1,14 @@
+amf_1:
+  url: /namf-evts/v1
+  ip: 192.168.70.132
+  port: 8080
+sbi:
+  ip: 192.168.70.1
+  port: 1112
+smf_1:
+  url: /nsmf_event-exposure/v1
+  ip: 192.168.70.133
+  port: 8080
+nwdaf-sbi:
+  name: oai-nwdaf-nbi-gateway
+  url: /nnwdaf-eventssubscription/v1

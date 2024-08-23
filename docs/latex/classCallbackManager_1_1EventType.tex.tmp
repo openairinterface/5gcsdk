@@ -1,0 +1,53 @@
+\hypertarget{classCallbackManager_1_1EventType}{}\doxysection{Callback\+Manager.\+Event\+Type Class Reference}
+\label{classCallbackManager_1_1EventType}\index{CallbackManager.EventType@{CallbackManager.EventType}}
+
+
+Inheritance diagram for Callback\+Manager.\+Event\+Type\+:
+% FIG 0
+
+
+Collaboration diagram for Callback\+Manager.\+Event\+Type\+:
+% FIG 1
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string \mbox{\hyperlink{classCallbackManager_1_1EventType_ae640b2be7492c5d11f859025b87449c9}{REGISTERED\+\_\+\+UES}} = \char`\"{}Registered\+UEs\char`\"{}
+\item 
+string \mbox{\hyperlink{classCallbackManager_1_1EventType_a707f052d19ac566a6a9024ef561ac3fe}{UE\+\_\+\+STATUS}} = \char`\"{}UEStatus\char`\"{}
+\item 
+string \mbox{\hyperlink{classCallbackManager_1_1EventType_a84332651fa19a12ab07eeda1c87cf7ea}{UE\+\_\+\+CELL\+\_\+\+ID}} = \char`\"{}UECell\+ID\char`\"{}
+\item 
+string \mbox{\hyperlink{classCallbackManager_1_1EventType_a86ae0312919ca6fef0d1a25127e63712}{UE\+\_\+\+TRAFFIC}} = \char`\"{}UETraffic\char`\"{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{classCallbackManager_1_1EventType_ae640b2be7492c5d11f859025b87449c9}\label{classCallbackManager_1_1EventType_ae640b2be7492c5d11f859025b87449c9}} 
+\index{CallbackManager.EventType@{CallbackManager.EventType}!REGISTERED\_UES@{REGISTERED\_UES}}
+\index{REGISTERED\_UES@{REGISTERED\_UES}!CallbackManager.EventType@{CallbackManager.EventType}}
+\doxysubsubsection{\texorpdfstring{REGISTERED\_UES}{REGISTERED\_UES}}
+{\footnotesize\ttfamily string Callback\+Manager.\+Event\+Type.\+REGISTERED\+\_\+\+UES = \char`\"{}Registered\+UEs\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classCallbackManager_1_1EventType_a84332651fa19a12ab07eeda1c87cf7ea}\label{classCallbackManager_1_1EventType_a84332651fa19a12ab07eeda1c87cf7ea}} 
+\index{CallbackManager.EventType@{CallbackManager.EventType}!UE\_CELL\_ID@{UE\_CELL\_ID}}
+\index{UE\_CELL\_ID@{UE\_CELL\_ID}!CallbackManager.EventType@{CallbackManager.EventType}}
+\doxysubsubsection{\texorpdfstring{UE\_CELL\_ID}{UE\_CELL\_ID}}
+{\footnotesize\ttfamily string Callback\+Manager.\+Event\+Type.\+UE\+\_\+\+CELL\+\_\+\+ID = \char`\"{}UECell\+ID\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classCallbackManager_1_1EventType_a707f052d19ac566a6a9024ef561ac3fe}\label{classCallbackManager_1_1EventType_a707f052d19ac566a6a9024ef561ac3fe}} 
+\index{CallbackManager.EventType@{CallbackManager.EventType}!UE\_STATUS@{UE\_STATUS}}
+\index{UE\_STATUS@{UE\_STATUS}!CallbackManager.EventType@{CallbackManager.EventType}}
+\doxysubsubsection{\texorpdfstring{UE\_STATUS}{UE\_STATUS}}
+{\footnotesize\ttfamily string Callback\+Manager.\+Event\+Type.\+UE\+\_\+\+STATUS = \char`\"{}UEStatus\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classCallbackManager_1_1EventType_a86ae0312919ca6fef0d1a25127e63712}\label{classCallbackManager_1_1EventType_a86ae0312919ca6fef0d1a25127e63712}} 
+\index{CallbackManager.EventType@{CallbackManager.EventType}!UE\_TRAFFIC@{UE\_TRAFFIC}}
+\index{UE\_TRAFFIC@{UE\_TRAFFIC}!CallbackManager.EventType@{CallbackManager.EventType}}
+\doxysubsubsection{\texorpdfstring{UE\_TRAFFIC}{UE\_TRAFFIC}}
+{\footnotesize\ttfamily string Callback\+Manager.\+Event\+Type.\+UE\+\_\+\+TRAFFIC = \char`\"{}UETraffic\char`\"{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{CallbackManager_8py}{Callback\+Manager.\+py}}\end{DoxyCompactItemize}
