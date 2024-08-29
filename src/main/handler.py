@@ -32,8 +32,10 @@ import signal
 import requests
 import subprocess
 import datamanager as datastream
+from NwdafManager import get_anomaly_ratio
 from flask import Flask, request , jsonify
 from pymongo import MongoClient , errors
+import httpx
 import subscriptions as subscriptions
 
 import logging
@@ -67,6 +69,13 @@ smf_port  = data['smf_1']['port']
 nwdaf_name= data['nwdaf-sbi']['name']
 nwdaf_url =  data['nwdaf-sbi']['url']
 
+http_version= data['http_version']
+if http_version == 2 : 
+    http_2=True 
+    http_1=False
+if http_version == 1 : 
+    http_2=False  
+    http_1=True     
 
 changed_status_dict = {}
 changed_cellid_dict = {}
@@ -118,6 +127,8 @@ amf_location_collection=db['amf_location_notification']
 smf_collection = db['smf_notifications']
 smf_traffic_collection = db['smf_notification_traffic']
 nwdaf_location_collection= db['nwdaf_location_traffic']
+nwdaf_anomaly_collection= db['nwdaf_anomaly_notification']
+
 
 log.info("Successfully connected to MongoDB.")
 
@@ -133,7 +144,8 @@ def clean_collections():
     smf_collection.delete_many({})
     smf_traffic_collection.delete_many({})
     amf_location_collection.delete_many({})
-    nwdaf_location_collection.delete_many({})
+    nwdaf_anomaly_collection.delete_many({})
+
     log.info("Collections cleaned.")
     
 clean_collections()
@@ -142,13 +154,14 @@ clean_collections()
 
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = subscriptions.get_amf_subscription_url(amf_addr , amf_port , amf_url)
-amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "REGISTRATION_STATE_REPORT")
-amf_sub_location = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "LOCATION_REPORT")
+amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "REGISTRATION_STATE_REPORT" , http_version)
+#amf_sub_location = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "LOCATION_REPORT", http_version)
+#amf_connectivity = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "CONNECTIVITY_STATE_REPORT" , http_version)
 
 log.info("Subscribing to User Sessions Events from SMF")
 
 smf_endpoint = subscriptions.get_smf_subscription_url(smf_addr , smf_port , smf_url)
-smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "PDU_SES_EST" )
+smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "PDU_SES_EST" , http_version )
 #smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON" )
 
 if amf_sub == "" or smf_sub == "":
@@ -164,17 +177,17 @@ if amf_sub == "" or smf_sub == "":
     assert False, "Subscription to CN events failed"
 
 #--------------------------Initialize_NWDAF_subscriptions-------------------------------------------------------
-log.info("Subscribing to NWDAF network performance")
-net_per_endpoint = subscriptions.get_network_performance_subscription_url(nwdaf_name, nwdaf_url)
-net_per_sub = subscriptions.create_network_performance_subscription(net_per_endpoint, sbi_addr , sbi_port , nwdaf_url)
+#log.info("Subscribing to NWDAF network performance")
+#net_per_endpoint = subscriptions.get_network_performance_subscription_url(nwdaf_name, nwdaf_url)
+#net_per_sub = subscriptions.create_network_performance_subscription(net_per_endpoint, sbi_addr , sbi_port , nwdaf_url)
 
 log.info("Subscribing to NWDAF anomaly")
 anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
 anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
 
-log.info("Subscribing to NWDAF track UE location")
-track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
-track_ue_sub = subscriptions.create_track_ue_location(sbi_addr, sbi_port, track_ue_endpoint, nwdaf_url )
+#log.info("Subscribing to NWDAF track UE location")
+#track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
+#track_ue_sub = subscriptions.create_track_ue_location(sbi_addr, sbi_port, track_ue_endpoint, nwdaf_url )
 
 def connected_ues():
 
@@ -411,17 +424,46 @@ def handle_changed_cellid_callbacks():
 
         changed_cellid_dict[supi] = status
 
-def handle_data_stream_callbacks(datastream):
+def handle_data_stream_callbacks():
     home_dir = os.path.expanduser("~")
     events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
     with open(events_json_path, 'r') as json_file:
         data = json.load(json_file)
     
     for callback_name in data["events"]["DataStream"]["callbacks"]:
+        row_stream= create_row_stream()
+        ue_instance = UE(
+                            supi=row_stream.get('imsi', ''),
+                            ad_ipv4_addr=row_stream.get('ip_address', ''),
+                            ran_ue_ngap_id=row_stream.get('gnb_ngap_id', ''),
+                            rm_state=row_stream.get('registration_status', ''),
+                                timestamp=row_stream.get('timestamp', ''),
+                            amf_ngap_id=row_stream.get('amf_ngap_id', ''),
+                            plmn=row_stream.get('plmn', ''),
+                            cell_id=row_stream.get('cell_id', ''),
+                            sd=row_stream.get('sd', ''),
+                            sst=row_stream.get('sst', ''),
+                            dnn=row_stream.get('dnn', ''),
+                            number_pkts_dl=row_stream.get('number_pkts_dl', ''),
+                            number_pkts_ul=row_stream.get('number_pkts_ul', ''),
+                            data_ul=row_stream.get('data_ul', ''),
+                            data_dl=row_stream.get('data_dl', '')
+                        )        
         callback_function = getattr(callbacks, callback_name, None)
         if callback_function:
-            callback_function(datastream)
+            callback_function(ue_instance)
+
+def handle_anomaly_callbacks():
+    home_dir = os.path.expanduser("~")
+    events_json_path = os.path.join(home_dir, '5gcsdk', 'src', 'modules', 'events.json')
+    with open(events_json_path, 'r') as json_file:
+        data = json.load(json_file)
     
+    for callback_name in data["events"]["Anomaly"]["callbacks"]:
+        callback_function = getattr(callbacks, callback_name, None)
+        if callback_function:
+            anomaly_score=get_anomaly_ratio()
+            callback_function(anomaly_score)
 
 # Route for AMF notifications
 @app.route('/callbacks/amf-reports', methods=['POST'])
@@ -429,6 +471,7 @@ def receive_amf_notification():
     if request.method == 'POST':
         content = request.get_json(force=True)
         log.debug(content)
+        #print('--------------------------------------------------------------------------------------',request.environ.get('SERVER_PROTOCOL'))
 
         event_notifs = content.get('reportList', [])
         for notif in event_notifs:
@@ -451,27 +494,9 @@ def receive_amf_notification():
                         status=rminfolist.get('rmState', '')
 
                     if status== 'DEREGISTERED' :
-                        row_stream= create_row_stream()
-                        ue_instance = UE(
-                                            supi=row_stream.get('imsi', ''),
-                                            ad_ipv4_addr=row_stream.get('ip_address', ''),
-                                            ran_ue_ngap_id=row_stream.get('gnb_ngap_id', ''),
-                                            rm_state=row_stream.get('registration_status', ''),
-                                             timestamp=row_stream.get('timestamp', ''),
-                                            amf_ngap_id=row_stream.get('amf_ngap_id', ''),
-                                            plmn=row_stream.get('plmn', ''),
-                                            cell_id=row_stream.get('cell_id', ''),
-                                            sd=row_stream.get('sd', ''),
-                                            sst=row_stream.get('sst', ''),
-                                            dnn=row_stream.get('dnn', ''),
-                                            number_pkts_dl=row_stream.get('number_pkts_dl', ''),
-                                            number_pkts_ul=row_stream.get('number_pkts_ul', ''),
-                                            data_ul=row_stream.get('data_ul', ''),
-                                            data_dl=row_stream.get('data_dl', '')
-                                        )
                         try:
                             importlib.reload(callbacks)
-                            handle_data_stream_callbacks(ue_instance)
+                            handle_data_stream_callbacks()
 
                         except Exception as e:
                             log.error(f"Error in handle_data_stream_callbacks: {e}")
@@ -497,7 +522,7 @@ def receive_smf_notification():
     if request.method == 'POST':
         content = request.get_json(force=True)
         log.debug(content)
-        
+        #print('--------------------------------------------------------------------------------------',request.environ.get('SERVER_PROTOCOL'))
         # Process the notifications based on the event type
         event_notifs = content.get('eventNotifs', [])
         for notif in event_notifs:
@@ -519,27 +544,10 @@ def receive_smf_notification():
             else:
                 smf_collection.insert_one(content)
 
-        row_stream= create_row_stream()
-        ue_instance = UE(
-                            supi=row_stream.get('imsi', ''),
-                            ad_ipv4_addr=row_stream.get('ip_address', ''),
-                            ran_ue_ngap_id=row_stream.get('gnb_ngap_id', ''),
-                            rm_state=row_stream.get('registration_status', ''),
-                            timestamp=row_stream.get('timestamp', ''),
-                            amf_ngap_id=row_stream.get('amf_ngap_id', ''),
-                            plmn=row_stream.get('plmn', ''),
-                            cell_id=row_stream.get('cell_id', ''),
-                            sd=row_stream.get('sd', ''),
-                            sst=row_stream.get('sst', ''),
-                            dnn=row_stream.get('dnn', ''),
-                            number_pkts_dl=row_stream.get('number_pkts_dl', ''),
-                            number_pkts_ul=row_stream.get('number_pkts_ul', ''),
-                            data_ul=row_stream.get('data_ul', ''),
-                            data_dl=row_stream.get('data_dl', '')
-                        )   
+
         try:
             importlib.reload(callbacks)
-            handle_data_stream_callbacks(ue_instance)
+            handle_data_stream_callbacks()
 
         except Exception as e:
             log.error(f"Error in handle_data_stream_callbacks: {e}")
@@ -553,6 +561,8 @@ def receive_smf_notification():
 def receive_location_notification():
     if request.method == 'POST':
         content = request.get_json(force=True)
+        log.info('LOCATION')
+
         log.debug(content)
         return "OK"
 
@@ -562,11 +572,18 @@ def receive_anomaly_notification():
     content = request.get_json(force=True)
     log.info('ANOMALY')
     log.info(content)
+    nwdaf_anomaly_collection.insert_one(content)
+    try:
+        importlib.reload(callbacks)
+        handle_anomaly_callbacks()
+
+    except Exception as e:
+        log.error(f"Error in handle_anomaly_callbacks: {e}")
+
     return "OK"
 
 @app.route('/network_performance_notification', methods=['POST'])
 def receive_network_performance_notification():
-    global net_perf_res
     if request.method == 'POST':
         content = request.get_json(force=True)
         log.info('NETWORK PERFORMANCE')
@@ -584,30 +601,37 @@ def terminator(signum, frame, ask=True):
     log.info("Terminating...")
 
     if amf_sub != "":
-        url = amf_sub
-        response = requests.delete(url)
-        log.info(f"AMF Subscription delete status code: {response.status_code}")
+       with httpx.Client(http2=http_2, http1=http_1) as client:
+            url = amf_sub
+            r = client.delete(url)
+            print(r.status_code)
+            log.info(f"AMF Subscription delete status code: {r.status_code}")
 
     if smf_sub != "":
-        url = smf_sub
-        response = requests.delete(url)
-        log.info(f"SMF Subscription delete status code: {response.status_code}")
+       with httpx.Client(http2=http_2, http1=http_1) as client:  
+            url=smf_sub
+            print('--------------------------------------------------------------', url)
+            r = client.delete(url)
+            print(r.status_code)
+            log.info(f"SMF Subscription delete status code: {r.status_code}")
     
-    if net_per_sub != "":
-        url = net_per_sub
-        response = requests.delete(url)
-        log.info(f"Network Performance Subscription delete status code: {response.status_code}")
+    #if net_per_sub != "":
+        #url = net_per_sub
+        #response = requests.delete(url)
+        #log.info(f"Network Performance Subscription delete status code: {response.status_code}")
 
     if anomaly_sub != "":
         url = anomaly_sub
         response = requests.delete(url)
+        print(url)
         log.info(f"Anomaly Subscription delete status code: {response.status_code}")
 
-    if track_ue_sub != "":
-        url = track_ue_sub
-        response = requests.delete(url)
-        log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
+    #if track_ue_sub != "":
+        #url = track_ue_sub
+        #response = requests.delete(url)
+        #log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
 
+ 
 
 signal.signal(signal.SIGTERM, terminator)
 signal.signal(signal.SIGINT, terminator)

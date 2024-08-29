@@ -1,7 +1,8 @@
 import uuid
 import requests
+import httpx
 from datetime import datetime
-
+import json
 
 #==================================================================
 #                    AMF_SUBSCRIPTION                             #
@@ -11,8 +12,14 @@ from datetime import datetime
 def get_amf_subscription_url(amf_ip, amf_port, amf_url):
     return f"http://{amf_ip}:{amf_port}{amf_url}/subscriptions"
 
-def create_amf_subscription(sub_endpoint , ip_addr, port, event):
-    sub_body = {
+def create_amf_subscription(sub_endpoint , ip_addr, port, event , http_version):
+    if http_version == 2 : 
+        http_2=True 
+        http_1=False
+    if http_version == 1 : 
+        http_2=False  
+        http_1=True    
+    sub_body = json.dumps({
         "subscription": {
             "eventList": [{"type": event}],
             "eventNotifyUri": f"{ip_addr}:{port}/callbacks/amf-reports",
@@ -20,16 +27,21 @@ def create_amf_subscription(sub_endpoint , ip_addr, port, event):
             "nfId": str(uuid.uuid1())
         }
     }
+    )
     try:
-        r = requests.post(url=sub_endpoint, json=sub_body)
-        if r.status_code == 201:
-            loc = r.headers['Location']
-            locs = loc.split("namf-evts/")
-            return sub_endpoint+"/"+ locs[2]
-        else:
-            return ""
-    except:
+        with httpx.Client(http2=http_2, http1=http_1) as client:
+            r = client.post(sub_endpoint, data=sub_body )
+            print(r.text)
+            if(r.status_code == 201):
+                loc = r.headers['Location']
+                start_pos = loc.find("/subscriptions/")
+                loc = f"{sub_endpoint}{loc[start_pos+len('/subscriptions/')]} " 
+                return loc
+            else:
+                return ""
+    except Exception as e:
         return ""
+
 
 
 #==================================================================
@@ -40,8 +52,14 @@ def create_amf_subscription(sub_endpoint , ip_addr, port, event):
 def get_smf_subscription_url(smf_ip, smf_port, smf_url):
      return f"http://{smf_ip}:{smf_port}{smf_url}/subscriptions"
 
-def create_smf_subscription(sub_endpoint , ip_addr, port, event):
-    sub_body = {
+def create_smf_subscription(sub_endpoint , ip_addr, port, event , http_version):
+    if http_version == 2 : 
+        http_2=True 
+        http_1=False
+    if http_version == 1 : 
+        http_2=False  
+        http_1=True
+    sub_body = json.dumps({
         "anyUeInd": True,
         "groupId": "aEb1CD9b-561-97-2cbA7bEc2eAC07ECb6",
         "pduSeId": 1,
@@ -54,15 +72,20 @@ def create_smf_subscription(sub_endpoint , ip_addr, port, event):
         "eventSubs": [{"event": event}],
         "eventNotifs": [{"event": event, "timeStamp": str(datetime.utcnow().isoformat()[:-3])+'Z'}]
     }
+    )
     try:
-        r = requests.post(url=sub_endpoint, json=sub_body)
-        if r.status_code == 201:
-            loc = r.headers['Location']
-            locs = loc.split("nsmf_event-exposure/")
-            return sub_endpoint+"/"+locs[2]
-        else:
-            return ""
-    except:
+        with httpx.Client(http2=http_2, http1=http_1) as client:
+            r = client.post(sub_endpoint, data=sub_body )
+            print(r.text)
+            if(r.status_code == 201):
+                loc = r.headers['Location']
+                start_pos = loc.find("/subscriptions/")
+                loc = f"{sub_endpoint}{loc[start_pos+len('/subscriptions/')]} " 
+                return loc
+            else:
+                return ""
+    except Exception as e:
+        print('error', e)
         return ""
 
 

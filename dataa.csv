@@ -1,2 +1,0 @@
-imsi,amf_ngap_id,gnb_ngap_id,registration_status,ip_address,dnn,sd,sst,cell_id,plmn
-imsi-208990000000032,4,1,REGISTERED,12.1.1.130,oai,16777215,1,1,"{'mcc': '208', 'mnc': '99'}"

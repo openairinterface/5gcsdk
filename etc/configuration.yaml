@@ -5,6 +5,9 @@ amf_1:
 sbi:
   ip: 192.168.70.1
   port: 1112
+sbi_nwdaf:
+  ip: 172.24.11.8
+  port: 1112
 smf_1:
   url: /nsmf_event-exposure/v1
   ip: 192.168.70.133
@@ -12,3 +15,4 @@ smf_1:
 nwdaf-sbi:
   name: oai-nwdaf-nbi-gateway
   url: /nnwdaf-eventssubscription/v1
+http_version: 2

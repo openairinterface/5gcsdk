@@ -53,8 +53,8 @@ status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
 with open(config_file_path, 'r') as f:
     data = yaml.load(f, Loader=SafeLoader)
 
-sbi_addr  = data['sbi']['ip']
-sbi_port  = data['sbi']['port']
+sbi_addr  = data['sbi_nwdaf']['ip']
+sbi_port  = data['sbi_nwdaf']['port']
 
 
 nwdaf_name= data['nwdaf-sbi']['name']
@@ -103,16 +103,17 @@ clean_collections()
 
 #--------------------------Initialize_NWDAF_subscriptions-------------------------------------------------------
 log.info("Subscribing to NWDAF network performance")
+
 net_per_endpoint = subscriptions.get_network_performance_subscription_url(nwdaf_name, nwdaf_url)
 net_per_sub = subscriptions.create_network_performance_subscription(net_per_endpoint, sbi_addr , sbi_port , nwdaf_url)
 
 log.info("Subscribing to NWDAF anomaly")
-anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
-anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
+#anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
+#anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
 
 log.info("Subscribing to NWDAF track UE location")
-track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
-track_ue_sub = subscriptions.create_track_ue_location(sbi_addr, sbi_port, track_ue_endpoint, nwdaf_url )
+#track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
+#track_ue_sub = subscriptions.create_track_ue_location(sbi_addr, sbi_port, track_ue_endpoint, nwdaf_url )
 
 
 @app.route('/notification', methods=[ 'POST'])
@@ -122,14 +123,6 @@ def receive_location_notification():
         content = request.get_json(force=True)
         log.debug(content)
         return "OK"
-
-
-@app.route('/anomaly_notification', methods=['POST'])
-def receive_anomaly_notification():
-    content = request.get_json(force=True)
-    log.info('ANOMALY')
-    log.info(content)
-    return "OK"
 
 @app.route('/network_performance_notification', methods=['POST'])
 def receive_network_performance_notification():
@@ -155,15 +148,15 @@ def terminator(signum, frame, ask=True):
         response = requests.delete(url)
         log.info(f"Network Performance Subscription delete status code: {response.status_code}")
 
-    if anomaly_sub != "":
-        url = anomaly_sub
-        response = requests.delete(url)
-        log.info(f"Anomaly Subscription delete status code: {response.status_code}")
+   # if anomaly_sub != "":
+    #    url = anomaly_sub
+     #   response = requests.delete(url)
+      #  log.info(f"Anomaly Subscription delete status code: {response.status_code}")
 
-    if track_ue_sub != "":
-        url = track_ue_sub
-        response = requests.delete(url)
-        log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
+ #   if track_ue_sub != "":
+  #      url = track_ue_sub
+   #     response = requests.delete(url)
+    #    log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
 
 
 signal.signal(signal.SIGTERM, terminator)

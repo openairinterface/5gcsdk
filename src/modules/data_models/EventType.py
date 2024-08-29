@@ -6,3 +6,5 @@ class EventType(Enum):
     UE_CELL_ID = "UECellID"
     UE_TRAFFIC = "UETraffic"
     DATA_STREAM = "DataStream"
+    ANOMALY = "Anomaly"
+

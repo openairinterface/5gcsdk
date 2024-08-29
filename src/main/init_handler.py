@@ -5,6 +5,7 @@ import sys
 import psutil
 import logging
 from datetime import datetime
+
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(os.path.join(parent_dir, 'modules'))
@@ -49,7 +50,7 @@ def stop_handler(data_stream=False):
             if data_stream== True :  
                 data_stream=datastream.create_data_stream()
                 current_date = datetime.now().date()
-                filename= 'CN_traffic_'+ str(current_date)+'.csv'
+                filename= 'CN_history_'+ str(current_date)+'.csv'
                 datastream.save_data_to_csv(data_stream ,filename )   
 
             logger.debug(f"Command line of the process: {proc.cmdline()}")
