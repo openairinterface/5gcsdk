@@ -7,6 +7,32 @@ from enum import Enum
 import ast
 from data_models.EventType import EventType
 
+class EventType(Enum):
+    """
+    Represents different types of events related to User Equipment (UE) in a network environment.
+
+    This enum class defines various event types that can be tracked or processed, such as registered UEs,
+    UE status, cell ID, traffic data, data streams, and anomalies.
+
+    :cvar REGISTERED_UES: Event type for retrieving registered UEs.
+    :cvar UE_STATUS: Event type for checking the status of a UE.
+    :cvar UE_CELL_ID: Event type for retrieving the cell ID associated with a UE.
+    :cvar UE_TRAFFIC: Event type for monitoring traffic data related to a UE.
+    :cvar DATA_STREAM: Event type for creating or handling data streams.
+    :cvar ANOMALY: Event type for detecting or reporting anomalies in the network.
+
+    Usage Example:
+    --------------
+    >>> event_type = EventType.REGISTERED_UES
+    >>> print(event_type.value)
+    'RegisteredUEs'
+    """
+    REGISTERED_UES = "RegisteredUEs"
+    UE_STATUS = "UEStatus"
+    UE_CELL_ID = "UECellID"
+    UE_TRAFFIC = "UETraffic"
+    DATA_STREAM = "DataStream"
+    ANOMALY = "Anomaly"
 
 def register_callback_ue(callback_function, event_type):
     """

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: CallbackManager Namespace Reference</title>
+<title>5gcsdk: CallbackManager Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">My Project
+   <div id="projectname">5gcsdk
    </div>
   </td>
  </tr>
@@ -113,16 +113,16 @@ This function takes a callback function and an event type as input parameters. I
 of the callback function and writes it to a file called callbacks.py. Additionally, it updates an events.json
 file to store the registered callback function under the corresponding event type.
 
-<strong>:param callback_function:</strong> The callback function to register.
-<strong>:type callback_function: </strong>function
-<strong>:param event_type:</strong> The type of event for which the callback function is registered (e.g., EventType.REGISTERED_UES).
-<strong>:type event_type:</strong> EventType
-<strong>:return:</strong> None
-<strong>:raises AssertionError:</strong> If the event type is invalid, or if the required keys are not found in events.json.
-<strong>:raises ValueError:</strong>If the callback function is already registered for the event type.
-<strong>:raises Exception:</strong> For any other errors that occur while writing to the file.
+<b>callback_function:</b> The callback function to register.
+<b>:type callback_function:</b> function
+<b>:param event_type:</b> The type of event for which the callback function is registered (e.g., EventType.REGISTERED_UES).
+<b>:type event_type:</b> EventType
+<b>:return:</b> None
+<b>:raises AssertionError:</b> If the event type is invalid, or if the required keys are not found in events.json.
+<b>:raises ValueError:</b> If the callback function is already registered for the event type.
+<b>:raises Exception:</b> For any other errors that occur while writing to the file.
 
-<strong>Usage Example:</strong> 
+<b>Usage Example:</b>
 --------------
 &gt;&gt;&gt; def sample_callback(data):
 &gt;&gt;&gt;     print("Callback called with data:", data)
@@ -159,15 +159,15 @@ file to store the registered callback function under the corresponding event typ
 <pre class="fragment">Unregisters a callback function for the specified event type and removes it from callbacks.py and events.json.
 If no arguments are provided, removes all callback functions from callbacks.py and events.json.
 
-<strong>:param function_name:</strong> The name of the callback function to unregister.
-<strong>:type function_name: </strong> str, optional
-<strong>:param event_type:</strong> The type of event for which the callback function is unregistered (e.g., EventType.REGISTERED_UES).
-<strong>:type event_type:</strong> EventType, optional
-<strong>:return:</strong> None
-<strong>:raises AssertionError:</strong> If the function name is not a string, the event type is invalid, or the required keys are not found in events.json.
-<strong>:raises Exception:</strong> For any other errors that occur while modifying the files.
+<b>:param function_name:</b> The name of the callback function to unregister.
+<b>:type function_name:</b> str, optional
+<b>:param event_type:</b> The type of event for which the callback function is unregistered (e.g., EventType.REGISTERED_UES).
+<b>:type event_type:</b> EventType, optional
+<b>:return:</b> None
+<b>:raises AssertionError:</b> If the function name is not a string, the event type is invalid, or the required keys are not found in events.json.
+<b>:raises Exception:</b> For any other errors that occur while modifying the files.
 
-<strong>Usage Example:</strong> 
+<b>Usage Example:</b>
 --------------
 
 &gt;&gt;&gt; event = EventType.REGISTERED_UES

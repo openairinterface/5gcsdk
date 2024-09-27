@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['rfsimuemanager_2epy_37',['RFsimUEManager.py',['../RFsimUEManager_8py.html',1,'']]]
+  ['nfmanager_2epy_94',['NFManager.py',['../NFManager_8py.html',1,'']]],
+  ['nwdafmanager_2epy_95',['NwdafManager.py',['../NwdafManager_8py.html',1,'']]]
 ];

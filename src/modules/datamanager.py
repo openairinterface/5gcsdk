@@ -1,198 +1,179 @@
 import csv
-import os
-from data_models.DataStream import DataStream
-from data_models.Metric import Metric
 from pymongo import MongoClient 
 import operator
-import logging 
-def createDataStream(data_selection=[], filters=None, callback=None):
+import logging
+from data_models.Metric import Metric 
+from enum import Enum
+
+
+def create_data_stream(data_selection=None, filters=None):
     """
-    Create a new data stream
-    
-    Parameters:
-    data_selection (list): List of metrics to be selected
-    filters (list): List of filters to be applied to the data stream: [(metric, operator, value), ...]
-    callback (function): Callback function to be called when data is received
+    This function creates a new data stream by retrieving and processing UE (User Equipment) data from various MongoDB collections.
 
-    Returns:
-    DataStream: DataStream object
+    :param data_selection: List of metrics to be selected. If None, all data is returned. 
+    :type data_selection: list, optional
+    :param filters: List of filters to be applied to the data stream in the format [(metric, operator, value), ...]. 
+                    If None, no filtering is applied.
+    :type filters: list, optional
+    :return: A list of dictionaries containing the processed data stream, with each dictionary representing a UE with selected metrics.
+    :rtype: list
+
+    :raises AssertionError: If any of the required MongoDB collections are not found.
+    :raises ValueError: If an invalid operator is used in the filters.
+    :raises Exception: For any other errors that occur during data retrieval and processing.
+
+    Usage Example:
+    --------------
+    >>> data_selection = [Metrics.IMSI, Metrics.IP_ADDRESS]
+    >>> filters = [('registration_status', '==', 'REGISTERED'), ('data_dl', '>', 1000)]
+    >>> data_stream = create_data_stream(data_selection, filters)
+    >>> print(data_stream)
     """
-    
-    data_stream = DataStream(data_selection=data_selection, filters=filters, callback=callback)
-    return data_stream
 
-def saveDataStream(data_stream, filename):
-    """
-    Save a DataStream to a CSV file in the user's Documents directory
-
-    Parameters:
-    data_stream (DataStream): The DataStream object to save
-    filename (str): The name of the file to save the data to
-    """
-    # Get the path to the user's Documents directory
-    documents_dir = os.path.join(os.path.expanduser('~'), 'Documents')
-    full_path = os.path.join(documents_dir, filename)
-    
-    # Ensure the directory exists
-    if not os.path.exists(documents_dir):
-        os.makedirs(documents_dir, exist_ok=True)
-
-    # Define the callback function that will save data to CSV
-    def csv_callback(entry):
-        file_exists = os.path.isfile(full_path)
-        
-        # Open the file in append mode
-        with open(full_path, 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            
-            # Write the header if the file does not exist
-            if not file_exists:
-                header = [metric.name for metric in data_stream.data_selection]
-                writer.writerow(header)
-            
-            # Write the data entry
-            row = [getattr(entry, metric.name) for metric in data_stream.data_selection]
-            writer.writerow(row)
-
-    # Set the callback for the data stream
-    data_stream.callback = csv_callback
-
-# Example usage
-
-
-def create_data_stream(data_selection=None , filters=None ):
-    """
-    Create a new data stream
-    
-    Parameters:
-    data_selection (list): List of metrics to be selected
-    filters (list): List of filters to be applied to the data stream: [(metric, operator, value), ...]
-    callback (function): Callback function to be called when data is received
-
-    Returns:
-    DataStream: DataStream object
-    """
+    # Initialize MongoDB client
     client = MongoClient('mongodb://localhost:27017/')
     logging.getLogger('pymongo').setLevel(logging.WARNING)
 
+    # Access the database
     db = client['notification_db']
+
+    # Assert that all necessary collections exist
+    required_collections = [
+        'amf_notifications', 
+        'amf_location_notification', 
+        'smf_notifications', 
+        'smf_notification_traffic'
+    ]
+    for collection in required_collections:
+        assert collection in db.list_collection_names(), f"{collection} collection not found in the database"
+
+    # Access collections
     amf_collection = db['amf_notifications']
     amf_location_collection = db['amf_location_notification']
     smf_collection = db['smf_notifications']
     smf_traffic_collection = db['smf_notification_traffic']
+
+    # Initialize variables
     processed_data = []
     existing_ues = []
-    filtered_data=[]
-    registration_state_report={}
+    filtered_data = []
+    registration_state_report = {}
 
+    # Populate list of existing UEs
     for document in amf_collection.find():
         for report in document["reportList"]:
-            latest_timestamp=0
+            latest_timestamp = 0
             supi = report["supi"]
             if supi not in existing_ues:
                 existing_ues.append(supi)
 
-    # Retrieve data from AMF collection
+    # Process AMF collection data
     for document in amf_collection.find():
         for report in document["reportList"]:
-            for supi in existing_ues :
+            for supi in existing_ues:
                 timestamp = report["timeStamp"]
 
-                if report["supi"]==supi and timestamp>latest_timestamp :
-                    latest_timestamp= timestamp
+                if report["supi"] == supi and timestamp > latest_timestamp:
+                    latest_timestamp = timestamp
                     registration_state_report[supi] = {
                         'amf_ngap_id': report['amfUeNgapId'],
                         'gnb_ngap_id': report['ranUeNgapId'],
                         'registration_status': report['rmInfoList'][0]['rmState'],
                     }
 
-    latest_timestamp=0
+    # Process SMF collection data
+    latest_timestamp = 0
     for document in smf_collection.find():
         for report in document["eventNotifs"]:
-            for supi in existing_ues :
+            for supi in existing_ues:
                 timestamp = report["timeStamp"]
-                imsi=str('imsi-')+str(report["supi"])
-                if str(imsi)==str(supi) and int(timestamp)>int(latest_timestamp) :
-                    latest_timestamp= timestamp
-                    registration_state_report[supi].update( {
+                imsi = f'imsi-{report["supi"]}'
+                if imsi == supi and int(timestamp) > int(latest_timestamp):
+                    latest_timestamp = timestamp
+                    registration_state_report[supi].update({
                         'ip_address': report['adIpv4Addr'],
                         'dnn': report['dnn'],
                         'sd': report['snssai']['sd'],
                         'sst': report['snssai']['sst'],
-
                     })
 
-    latest_timestamp=0
+    # Process AMF location collection data
+    latest_timestamp = 0
     for document in amf_location_collection.find():
         for report in document["reportList"]:
-            for supi in existing_ues :
+            for supi in existing_ues:
                 timestamp = report["timeStamp"]
 
-                if report["supi"]==supi and int(timestamp)>int(latest_timestamp) :
-                    latest_timestamp= timestamp
-                    registration_state_report[supi].update( {
+                if report["supi"] == supi and int(timestamp) > int(latest_timestamp):
+                    latest_timestamp = timestamp
+                    registration_state_report[supi].update({
                         'cell_id': report['location']['nrLocation']['tai']['tac'],
                         'plmn': report['location']['nrLocation']['globalGnbId']['plmnId'],
-
                     })
-    
-    latest_timestamp=0
+
+    # Process SMF traffic collection data
+    latest_timestamp = 0
     for document in smf_traffic_collection.find():
         for report in document["eventNotifs"]:
-            for supi in existing_ues :
+            for supi in existing_ues:
                 timestamp = report["timeStamp"]
-                imsi=str('imsi-')+str(report["supi"])
-                if str(imsi)==str(supi) and int(timestamp)>int(latest_timestamp) :
-                    latest_timestamp= timestamp
-                    registration_state_report[supi].update( {
+                imsi = f'imsi-{report["supi"]}'
+                if imsi == supi and int(timestamp) > int(latest_timestamp):
+                    latest_timestamp = timestamp
+                    registration_state_report[supi].update({
                         'number_pkts_dl': report['customized_data']['Usage Report']['NoP']['Downlink'],
                         'number_pkts_ul': report['customized_data']['Usage Report']['NoP']['Uplink'],
-                        'data_dl'       : report['customized_data']['Usage Report']['Volume']['Downlink'],
-                        'data_ul'       : report['customized_data']['Usage Report']['Volume']['Uplink'],
+                        'data_dl': report['customized_data']['Usage Report']['Volume']['Downlink'],
+                        'data_ul': report['customized_data']['Usage Report']['Volume']['Uplink'],
                     })
 
-    data_bank=[
+    # Prepare the data bank
+    data_bank = [
         {
             'imsi': supi,
             **data
         }
         for supi, data in registration_state_report.items()
     ]
-    if data_selection==None:
+
+    # If no data selection is specified, return the full data bank
+    if data_selection is None:
         return data_bank
-    
-    data_selection=[metric.value for metric in data_selection]
-    i=0
+
+    # Filter the data according to the selected metrics
+    data_selection = [metric.value for metric in data_selection]
+    i = 0
     for ue_report in data_bank:
         updated_report = {}
-        i+=1
+        i += 1
         updated_report['raw_id'] = i
 
         for k, v in ue_report.items():
             if k in data_selection:
                 updated_report[k] = v
         processed_data.append(updated_report)
-    
 
-    
-
-    if filters==None:
+    # If no filters are specified, return the processed data
+    if filters is None:
         return processed_data
-        
+
+    # Define valid operators
     operators = {
-    '==': operator.eq,
-    '!=': operator.ne,
-    '>': operator.gt,
-    '<': operator.lt,
-    '>=': operator.ge,
-    '<=': operator.le
-}
+        '==': operator.eq,
+        '!=': operator.ne,
+        '>': operator.gt,
+        '<': operator.lt,
+        '>=': operator.ge,
+        '<=': operator.le
+    }
 
-
+    # Apply the filters
     for report in processed_data:
         include = True
         for key, op, value in filters:
             if key in report:
+                if op not in operators:
+                    raise ValueError(f"Invalid operator: {op}")
                 if not operators[op](report[key], value):
                     include = False
                     break
@@ -203,14 +184,24 @@ def create_data_stream(data_selection=None , filters=None ):
 
 def save_data_to_csv(data, output_file='data_streams.csv'):
     """
-    Save the data to a CSV file, filling in None for any missing values.
-    
-    Parameters:
-    data (list of dict): The data to be saved. Each dict represents a row in the CSV.
-    output_file (str): Path to the file where data will be saved.
-    
-    Returns:
-    None
+    Saves the provided data to a CSV file, filling in None for any missing values.
+
+    :param data: The data to be saved. Each dictionary in the list represents a row in the CSV file.
+    :type data: list of dict
+    :param output_file: The file path where the data will be saved. Defaults to 'data_streams.csv'.
+    :type output_file: str, optional
+    :return: None
+    :rtype: None
+
+    :raises Exception: If an error occurs while saving data to the CSV file.
+
+    Usage Example:
+    --------------
+    >>> data_selection = [Metrics.IMSI, Metrics.IP_ADDRESS]
+    >>> filters = [('registration_status', '==', 'REGISTERED'), ('data_dl', '>', 1000)]
+    >>> data_stream = create_data_stream(data_selection, filters)
+    >>> save_data_to_csv(data, 'output.csv')
+    >>> print("Data saved successfully.")
     """
     if not data:
         print("No data to save.")
@@ -234,30 +225,7 @@ def save_data_to_csv(data, output_file='data_streams.csv'):
         print(f"An error occurred while saving data: {e}")
 
 
-data_selection = [
-        Metric.timestamp,
-        Metric.data_ul,
-        Metric.data_dl,
-        Metric.number_pkts_ul,
-        Metric.number_pkts_dl,
-        Metric.connectivity_status,
-        Metric.ip_address,
-        Metric.imsi,
-        Metric.dnn,
-        Metric.sst,
-        Metric.sd,
-        Metric.plmn,
-        Metric.amf_ngap_id,
-        Metric.gnb_ngap_id,
-        Metric.cell_id,
-        Metric.registration_status
-]
-filters = [
-    ('registration_status', '==', 'REGISTERED')]
-#a=create_data_stream(data_selection)
-#print(a)
-#save_data_to_csv(a , 'hhh.csv')
-#print(data_selection[1].value)
+
 
 
 

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['nfmanager_2epy_36',['NFManager.py',['../NFManager_8py.html',1,'']]]
+  ['datamanager_2epy_93',['datamanager.py',['../datamanager_8py.html',1,'']]]
 ];

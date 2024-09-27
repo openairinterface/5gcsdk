@@ -4,15 +4,20 @@ from pymongo import MongoClient, errors
 def get_anomaly_ratio():
     """
     Retrieves the latest anomaly ratio from the 'nwdaf_anomaly_notification' collection.
-    
-    Returns:
-        float: The latest anomaly ratio.
-    
-    Raises:
-        ConnectionError: If there is a failure connecting to MongoDB.
-        ValueError: If the required collection or data fields are not found.
-        Exception: For other unexpected issues.
+
+    :return: The latest anomaly ratio.
+    :rtype: float
+
+    :raises ConnectionError: If there is a failure connecting to MongoDB.
+    :raises ValueError: If the required collection or data fields are not found.
+    :raises Exception: For any other unexpected issues.
+
+    Usage Example:
+    --------------
+    >>> anomaly_ratio = get_latest_anomaly_ratio()
+    >>> print(f"The latest anomaly ratio is: {anomaly_ratio}")
     """
+
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
     logging.getLogger('pymongo').setLevel(logging.WARNING)

@@ -1,25 +1,4 @@
-"""
-Description:
-    This script sets up a Flask web application to handle AMF and SMF notifications,
-    registers callback functions for various events, and updates MongoDB collections
-    with received notifications.
 
-Requirements:
-    - Flask
-    - pymongo
-    - requests
-
-Usage:
-    - Run the script to start the Flask web application.
-    - Incoming AMF notifications are handled at '/callbacks/amf-reports' endpoint.
-    - Incoming SMF notifications are handled at '/callbacks/dataplane-reports' endpoint.
-
-How to Use:
-    1. Ensure all required packages are installed.
-    2. Run the script.
-    3. The Flask application will start, listening on the specified host and port.
-
-"""
 import os
 import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -53,8 +32,8 @@ status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
 with open(config_file_path, 'r') as f:
     data = yaml.load(f, Loader=SafeLoader)
 
-sbi_addr  = data['sbi_nwdaf']['ip']
-sbi_port  = data['sbi_nwdaf']['port']
+sbi_addr  = data['sbi']['ip']
+sbi_port  = data['sbi']['port']
 
 
 nwdaf_name= data['nwdaf-sbi']['name']

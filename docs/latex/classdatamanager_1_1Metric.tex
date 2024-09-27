@@ -1,0 +1,200 @@
+\hypertarget{classdatamanager_1_1Metric}{}\doxysection{datamanager.\+Metric Class Reference}
+\label{classdatamanager_1_1Metric}\index{datamanager.Metric@{datamanager.Metric}}
+
+
+Inheritance diagram for datamanager.\+Metric\+:
+% FIG 0
+
+
+Collaboration diagram for datamanager.\+Metric\+:
+% FIG 1
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_ad7d5fda1efee8ede9b00748f8ca83e56}{timestamp}} = \textquotesingle{}timestamp\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a0518a761e548169211f2840e4061e454}{data\+\_\+ul}} = \textquotesingle{}data\+\_\+ul\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a239e8445a487e57c3dfd0886b4f6c360}{data\+\_\+dl}} = \textquotesingle{}data\+\_\+dl\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a0ade7ea59545fa6a1a31e5ada483db59}{start\+\_\+interval}} = \textquotesingle{}start\+\_\+interval\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a5c63279f6365a3f20ca66f0a1d73303a}{end\+\_\+interval}} = \textquotesingle{}end\+\_\+interval\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_afdd001a7b3582dabae1e3d6f748d670d}{interval\+\_\+size}} = \textquotesingle{}interval\+\_\+size\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_ac97b211a9ea321724db0c785bb5b2337}{number\+\_\+pkts\+\_\+ul}} = \textquotesingle{}number\+\_\+pkts\+\_\+ul\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a9351ecaad68f249f8f7287cc21ade8fb}{number\+\_\+pkts\+\_\+dl}} = \textquotesingle{}number\+\_\+pkts\+\_\+dl\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_ab0edef56451f869cd3ad5d8708e487ff}{connectivity\+\_\+status}} = \textquotesingle{}connectivity\+\_\+status\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a7af3092890835dff3d01d39bc1bf77b7}{ip\+\_\+address}} = \textquotesingle{}ip\+\_\+address\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_ae7366b8d3df14342e34501a7716d1d9a}{imsi}} = \textquotesingle{}imsi\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a6fae3000b8a7f57e8ded14cf4fdb07b7}{dnn}} = \textquotesingle{}dnn\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a4bf4300d4266529f35cbd20e51165c37}{sst}} = \textquotesingle{}sst\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a05a4324a1fdcd0573b0c238b71364c97}{sd}} = \textquotesingle{}sd\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_adb17fcf027bb55a41386ea2fc07f81c6}{plmn}} = \textquotesingle{}plmn\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_adf44db30de326db3a803c43655c1f0e9}{amf\+\_\+ngap\+\_\+id}} = \textquotesingle{}amf\+\_\+ngap\+\_\+id\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_a899b23762e461c34de8c05985adfe319}{gnb\+\_\+ngap\+\_\+id}} = \textquotesingle{}gnb\+\_\+ngap\+\_\+id\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_ad42ff0dc4087ab01dafee56da7ca25d7}{cell\+\_\+id}} = \textquotesingle{}cell\+\_\+id\textquotesingle{}
+\item 
+string \mbox{\hyperlink{classdatamanager_1_1Metric_afd0ee12a87f7dfb7f6de191d46810a29}{registration\+\_\+status}} = \textquotesingle{}registration\+\_\+status\textquotesingle{}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\begin{DoxyVerb}Enum class for metrics, representing various attributes of a User Equipment (UE).
+
+Attributes:
+
+timestamp (str): Timestamp of the event or record.
+data_ul (str): Amount of uplink data (data sent from the UE).
+data_dl (str): Amount of downlink data (data received by the UE).
+start_interval (str): Start time of a reporting interval (input from user).
+end_interval (str): End time of a reporting interval (input from user).
+interval_size (str): Duration of the reporting interval, computed from start_interval and end_interval.
+number_pkts_ul (str): Number of uplink packets (packets sent from the UE).
+number_pkts_dl (str): Number of downlink packets (packets received by the UE).
+connectivity_status (str): Connectivity state, obtained from AMF-CONNECTIVITY_STATE_REPORT .reportList[].cmInfoList[].cmState.
+ip_address (str): IP address assigned to the UE, obtained from SMF-PDU_SES_EST .adIpv4Addr.
+imsi (str): International Mobile Subscriber Identity (IMSI) of the UE, obtained from SMF-PDU_SES_EST eventNotifs[].supi or AMF-CONNECTIVITY_STATE_REPORT .reportList[].supi.
+dnn (str): Data Network Name (DNN) associated with the UE, obtained from SMF-PDU_SES_EST eventNotifs[].dnn.
+sst (str): Slice/Service Type (SST), which can be obtained from multiple sources such as UE_COMMUNICATION .ueComms[].traffChar.snssai.sst, NDWAF-ABNORMAL_BEHAVIOUR .abnorBehavrs[].snssai.sst, or SMF-PDU_SES_EST .snssai.sst.
+sd (str): Slice Differentiator (SD), part of the S-NSSAI (Single Network Slice Selection Assistance Information).
+plmn (str): Public Land Mobile Network (PLMN) identifier.
+amf_ngap_id (str): AMF NGAP (Next Generation Application Protocol) ID.
+gnb_ngap_id (str): gNB NGAP (Next Generation Application Protocol) ID.
+cell_id (str): Cell ID, which can be obtained from NDWAF-UE_MOBILITY .ueMobs[].locInfos[].loc.
+registration_status (str): Registration status of the UE.
+\end{DoxyVerb}
+ 
+
+\doxysubsection{Field Documentation}
+\mbox{\Hypertarget{classdatamanager_1_1Metric_adf44db30de326db3a803c43655c1f0e9}\label{classdatamanager_1_1Metric_adf44db30de326db3a803c43655c1f0e9}} 
+\index{datamanager.Metric@{datamanager.Metric}!amf\_ngap\_id@{amf\_ngap\_id}}
+\index{amf\_ngap\_id@{amf\_ngap\_id}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{amf\_ngap\_id}{amf\_ngap\_id}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+amf\+\_\+ngap\+\_\+id = \textquotesingle{}amf\+\_\+ngap\+\_\+id\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_ad42ff0dc4087ab01dafee56da7ca25d7}\label{classdatamanager_1_1Metric_ad42ff0dc4087ab01dafee56da7ca25d7}} 
+\index{datamanager.Metric@{datamanager.Metric}!cell\_id@{cell\_id}}
+\index{cell\_id@{cell\_id}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{cell\_id}{cell\_id}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+cell\+\_\+id = \textquotesingle{}cell\+\_\+id\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_ab0edef56451f869cd3ad5d8708e487ff}\label{classdatamanager_1_1Metric_ab0edef56451f869cd3ad5d8708e487ff}} 
+\index{datamanager.Metric@{datamanager.Metric}!connectivity\_status@{connectivity\_status}}
+\index{connectivity\_status@{connectivity\_status}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{connectivity\_status}{connectivity\_status}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+connectivity\+\_\+status = \textquotesingle{}connectivity\+\_\+status\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a239e8445a487e57c3dfd0886b4f6c360}\label{classdatamanager_1_1Metric_a239e8445a487e57c3dfd0886b4f6c360}} 
+\index{datamanager.Metric@{datamanager.Metric}!data\_dl@{data\_dl}}
+\index{data\_dl@{data\_dl}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{data\_dl}{data\_dl}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+data\+\_\+dl = \textquotesingle{}data\+\_\+dl\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a0518a761e548169211f2840e4061e454}\label{classdatamanager_1_1Metric_a0518a761e548169211f2840e4061e454}} 
+\index{datamanager.Metric@{datamanager.Metric}!data\_ul@{data\_ul}}
+\index{data\_ul@{data\_ul}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{data\_ul}{data\_ul}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+data\+\_\+ul = \textquotesingle{}data\+\_\+ul\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a6fae3000b8a7f57e8ded14cf4fdb07b7}\label{classdatamanager_1_1Metric_a6fae3000b8a7f57e8ded14cf4fdb07b7}} 
+\index{datamanager.Metric@{datamanager.Metric}!dnn@{dnn}}
+\index{dnn@{dnn}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{dnn}{dnn}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+dnn = \textquotesingle{}dnn\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a5c63279f6365a3f20ca66f0a1d73303a}\label{classdatamanager_1_1Metric_a5c63279f6365a3f20ca66f0a1d73303a}} 
+\index{datamanager.Metric@{datamanager.Metric}!end\_interval@{end\_interval}}
+\index{end\_interval@{end\_interval}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{end\_interval}{end\_interval}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+end\+\_\+interval = \textquotesingle{}end\+\_\+interval\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a899b23762e461c34de8c05985adfe319}\label{classdatamanager_1_1Metric_a899b23762e461c34de8c05985adfe319}} 
+\index{datamanager.Metric@{datamanager.Metric}!gnb\_ngap\_id@{gnb\_ngap\_id}}
+\index{gnb\_ngap\_id@{gnb\_ngap\_id}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{gnb\_ngap\_id}{gnb\_ngap\_id}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+gnb\+\_\+ngap\+\_\+id = \textquotesingle{}gnb\+\_\+ngap\+\_\+id\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_ae7366b8d3df14342e34501a7716d1d9a}\label{classdatamanager_1_1Metric_ae7366b8d3df14342e34501a7716d1d9a}} 
+\index{datamanager.Metric@{datamanager.Metric}!imsi@{imsi}}
+\index{imsi@{imsi}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{imsi}{imsi}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+imsi = \textquotesingle{}imsi\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_afdd001a7b3582dabae1e3d6f748d670d}\label{classdatamanager_1_1Metric_afdd001a7b3582dabae1e3d6f748d670d}} 
+\index{datamanager.Metric@{datamanager.Metric}!interval\_size@{interval\_size}}
+\index{interval\_size@{interval\_size}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{interval\_size}{interval\_size}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+interval\+\_\+size = \textquotesingle{}interval\+\_\+size\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a7af3092890835dff3d01d39bc1bf77b7}\label{classdatamanager_1_1Metric_a7af3092890835dff3d01d39bc1bf77b7}} 
+\index{datamanager.Metric@{datamanager.Metric}!ip\_address@{ip\_address}}
+\index{ip\_address@{ip\_address}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{ip\_address}{ip\_address}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+ip\+\_\+address = \textquotesingle{}ip\+\_\+address\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a9351ecaad68f249f8f7287cc21ade8fb}\label{classdatamanager_1_1Metric_a9351ecaad68f249f8f7287cc21ade8fb}} 
+\index{datamanager.Metric@{datamanager.Metric}!number\_pkts\_dl@{number\_pkts\_dl}}
+\index{number\_pkts\_dl@{number\_pkts\_dl}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{number\_pkts\_dl}{number\_pkts\_dl}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+number\+\_\+pkts\+\_\+dl = \textquotesingle{}number\+\_\+pkts\+\_\+dl\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_ac97b211a9ea321724db0c785bb5b2337}\label{classdatamanager_1_1Metric_ac97b211a9ea321724db0c785bb5b2337}} 
+\index{datamanager.Metric@{datamanager.Metric}!number\_pkts\_ul@{number\_pkts\_ul}}
+\index{number\_pkts\_ul@{number\_pkts\_ul}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{number\_pkts\_ul}{number\_pkts\_ul}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+number\+\_\+pkts\+\_\+ul = \textquotesingle{}number\+\_\+pkts\+\_\+ul\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_adb17fcf027bb55a41386ea2fc07f81c6}\label{classdatamanager_1_1Metric_adb17fcf027bb55a41386ea2fc07f81c6}} 
+\index{datamanager.Metric@{datamanager.Metric}!plmn@{plmn}}
+\index{plmn@{plmn}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{plmn}{plmn}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+plmn = \textquotesingle{}plmn\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_afd0ee12a87f7dfb7f6de191d46810a29}\label{classdatamanager_1_1Metric_afd0ee12a87f7dfb7f6de191d46810a29}} 
+\index{datamanager.Metric@{datamanager.Metric}!registration\_status@{registration\_status}}
+\index{registration\_status@{registration\_status}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{registration\_status}{registration\_status}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+registration\+\_\+status = \textquotesingle{}registration\+\_\+status\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a05a4324a1fdcd0573b0c238b71364c97}\label{classdatamanager_1_1Metric_a05a4324a1fdcd0573b0c238b71364c97}} 
+\index{datamanager.Metric@{datamanager.Metric}!sd@{sd}}
+\index{sd@{sd}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{sd}{sd}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+sd = \textquotesingle{}sd\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a4bf4300d4266529f35cbd20e51165c37}\label{classdatamanager_1_1Metric_a4bf4300d4266529f35cbd20e51165c37}} 
+\index{datamanager.Metric@{datamanager.Metric}!sst@{sst}}
+\index{sst@{sst}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{sst}{sst}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+sst = \textquotesingle{}sst\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_a0ade7ea59545fa6a1a31e5ada483db59}\label{classdatamanager_1_1Metric_a0ade7ea59545fa6a1a31e5ada483db59}} 
+\index{datamanager.Metric@{datamanager.Metric}!start\_interval@{start\_interval}}
+\index{start\_interval@{start\_interval}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{start\_interval}{start\_interval}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+start\+\_\+interval = \textquotesingle{}start\+\_\+interval\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+\mbox{\Hypertarget{classdatamanager_1_1Metric_ad7d5fda1efee8ede9b00748f8ca83e56}\label{classdatamanager_1_1Metric_ad7d5fda1efee8ede9b00748f8ca83e56}} 
+\index{datamanager.Metric@{datamanager.Metric}!timestamp@{timestamp}}
+\index{timestamp@{timestamp}!datamanager.Metric@{datamanager.Metric}}
+\doxysubsubsection{\texorpdfstring{timestamp}{timestamp}}
+{\footnotesize\ttfamily string datamanager.\+Metric.\+timestamp = \textquotesingle{}timestamp\textquotesingle{}\hspace{0.3cm}{\ttfamily [static]}}
+
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{datamanager_8py}{datamanager.\+py}}\end{DoxyCompactItemize}

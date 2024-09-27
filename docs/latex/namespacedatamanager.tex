@@ -1,0 +1,70 @@
+\hypertarget{namespacedatamanager}{}\doxysection{datamanager Namespace Reference}
+\label{namespacedatamanager}\index{datamanager@{datamanager}}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classdatamanager_1_1Metric}{Metric}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespacedatamanager_a3de74b691cb223d11a05129116b30d05}{create\+\_\+data\+\_\+stream}} (data\+\_\+selection=None, filters=None)
+\item 
+def \mbox{\hyperlink{namespacedatamanager_ac6dcf99803ef11ae5497b84f4b83b1db}{save\+\_\+data\+\_\+to\+\_\+csv}} (data, output\+\_\+file=\textquotesingle{}data\+\_\+streams.\+csv\textquotesingle{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespacedatamanager_a3de74b691cb223d11a05129116b30d05}\label{namespacedatamanager_a3de74b691cb223d11a05129116b30d05}} 
+\index{datamanager@{datamanager}!create\_data\_stream@{create\_data\_stream}}
+\index{create\_data\_stream@{create\_data\_stream}!datamanager@{datamanager}}
+\doxysubsubsection{\texorpdfstring{create\_data\_stream()}{create\_data\_stream()}}
+{\footnotesize\ttfamily def datamanager.\+create\+\_\+data\+\_\+stream (\begin{DoxyParamCaption}\item[{}]{data\+\_\+selection = {\ttfamily None},  }\item[{}]{filters = {\ttfamily None} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}This function creates a new data stream by retrieving and processing UE (User Equipment) data from various MongoDB collections.
+
+:param data_selection: List of metrics to be selected. If None, all data is returned. 
+:type data_selection: list, optional
+:param filters: List of filters to be applied to the data stream in the format [(metric, operator, value), ...]. 
+                If None, no filtering is applied.
+:type filters: list, optional
+:return: A list of dictionaries containing the processed data stream, with each dictionary representing a UE with selected metrics.
+:rtype: list
+
+:raises AssertionError: If any of the required MongoDB collections are not found.
+:raises ValueError: If an invalid operator is used in the filters.
+:raises Exception: For any other errors that occur during data retrieval and processing.
+
+Usage Example:
+--------------
+>>> data_selection = [Metrics.IMSI, Metrics.IP_ADDRESS]
+>>> filters = [('registration_status', '==', 'REGISTERED'), ('data_dl', '>', 1000)]
+>>> data_stream = create_data_stream(data_selection, filters)
+>>> print(data_stream)
+\end{DoxyVerb}
+ \mbox{\Hypertarget{namespacedatamanager_ac6dcf99803ef11ae5497b84f4b83b1db}\label{namespacedatamanager_ac6dcf99803ef11ae5497b84f4b83b1db}} 
+\index{datamanager@{datamanager}!save\_data\_to\_csv@{save\_data\_to\_csv}}
+\index{save\_data\_to\_csv@{save\_data\_to\_csv}!datamanager@{datamanager}}
+\doxysubsubsection{\texorpdfstring{save\_data\_to\_csv()}{save\_data\_to\_csv()}}
+{\footnotesize\ttfamily def datamanager.\+save\+\_\+data\+\_\+to\+\_\+csv (\begin{DoxyParamCaption}\item[{}]{data,  }\item[{}]{output\+\_\+file = {\ttfamily \textquotesingle{}data\+\_\+streams.csv\textquotesingle{}} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Saves the provided data to a CSV file, filling in None for any missing values.
+
+:param data: The data to be saved. Each dictionary in the list represents a row in the CSV file.
+:type data: list of dict
+:param output_file: The file path where the data will be saved. Defaults to 'data_streams.csv'.
+:type output_file: str, optional
+:return: None
+:rtype: None
+
+:raises Exception: If an error occurs while saving data to the CSV file.
+
+Usage Example:
+--------------
+>>> data_selection = [Metrics.IMSI, Metrics.IP_ADDRESS]
+>>> filters = [('registration_status', '==', 'REGISTERED'), ('data_dl', '>', 1000)]
+>>> data_stream = create_data_stream(data_selection, filters)
+>>> save_data_to_csv(data, 'output.csv')
+>>> print("Data saved successfully.")
+\end{DoxyVerb}
+ 

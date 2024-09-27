@@ -1,0 +1,31 @@
+\hypertarget{namespaceNwdafManager}{}\doxysection{Nwdaf\+Manager Namespace Reference}
+\label{namespaceNwdafManager}\index{NwdafManager@{NwdafManager}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceNwdafManager_a517ee8978b20017ea963a93b0ae73c92}{get\+\_\+anomaly\+\_\+ratio}} ()
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceNwdafManager_a517ee8978b20017ea963a93b0ae73c92}\label{namespaceNwdafManager_a517ee8978b20017ea963a93b0ae73c92}} 
+\index{NwdafManager@{NwdafManager}!get\_anomaly\_ratio@{get\_anomaly\_ratio}}
+\index{get\_anomaly\_ratio@{get\_anomaly\_ratio}!NwdafManager@{NwdafManager}}
+\doxysubsubsection{\texorpdfstring{get\_anomaly\_ratio()}{get\_anomaly\_ratio()}}
+{\footnotesize\ttfamily def Nwdaf\+Manager.\+get\+\_\+anomaly\+\_\+ratio (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Retrieves the latest anomaly ratio from the 'nwdaf_anomaly_notification' collection.
+
+:return: The latest anomaly ratio.
+:rtype: float
+
+:raises ConnectionError: If there is a failure connecting to MongoDB.
+:raises ValueError: If the required collection or data fields are not found.
+:raises Exception: For any other unexpected issues.
+
+Usage Example:
+--------------
+>>> anomaly_ratio = get_latest_anomaly_ratio()
+>>> print(f"The latest anomaly ratio is: {anomaly_ratio}")
+\end{DoxyVerb}
+ 

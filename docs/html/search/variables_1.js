@@ -1,6 +1,6 @@
 var searchData=
 [
-  ['ue_5fcell_5fid_51',['UE_CELL_ID',['../classCallbackManager_1_1EventType.html#a84332651fa19a12ab07eeda1c87cf7ea',1,'CallbackManager::EventType']]],
-  ['ue_5fstatus_52',['UE_STATUS',['../classCallbackManager_1_1EventType.html#a707f052d19ac566a6a9024ef561ac3fe',1,'CallbackManager::EventType']]],
-  ['ue_5ftraffic_53',['UE_TRAFFIC',['../classCallbackManager_1_1EventType.html#a86ae0312919ca6fef0d1a25127e63712',1,'CallbackManager::EventType']]]
+  ['cell_5fid_119',['cell_id',['../classdatamanager_1_1Metric.html#ad42ff0dc4087ab01dafee56da7ca25d7',1,'datamanager.Metric.cell_id()'],['../classUEManager_1_1UE.html#a64bf43001f52648df1bfda97e15ff365',1,'UEManager.UE.cell_id()']]],
+  ['cell_5fid_120',['CELL_ID',['../classUEManager_1_1Location.html#a3ba4d97b983bfd62bea0d21f60988df0',1,'UEManager::Location']]],
+  ['connectivity_5fstatus_121',['connectivity_status',['../classdatamanager_1_1Metric.html#ab0edef56451f869cd3ad5d8708e487ff',1,'datamanager::Metric']]]
 ];

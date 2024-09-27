@@ -24,10 +24,17 @@ import os
 import sys
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
+print(parent_dir)
 sys.path.append(os.path.join(parent_dir, 'modules'))
 sys.path.append(os.path.join(parent_dir, 'subscriptions_manager'))
 from data_models.Metric import Metric
 import callbacks as callbacks
+from NFManager import *
+from RFsimUEManager import *
+from UEManager import *
+from NwdafManager import *
+
+
 import signal
 import requests
 import subprocess
@@ -155,14 +162,14 @@ clean_collections()
 log.info("Subscribing to Registration Events from AMF")
 amf_endpoint = subscriptions.get_amf_subscription_url(amf_addr , amf_port , amf_url)
 amf_sub = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "REGISTRATION_STATE_REPORT" , http_version)
-#amf_sub_location = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "LOCATION_REPORT", http_version)
-#amf_connectivity = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "CONNECTIVITY_STATE_REPORT" , http_version)
+amf_sub_location = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "LOCATION_REPORT", http_version)
+amf_connectivity = subscriptions.create_amf_subscription(amf_endpoint , sbi_addr , sbi_port , "CONNECTIVITY_STATE_REPORT" , http_version)
 
 log.info("Subscribing to User Sessions Events from SMF")
 
 smf_endpoint = subscriptions.get_smf_subscription_url(smf_addr , smf_port , smf_url)
 smf_sub = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "PDU_SES_EST" , http_version )
-#smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON" )
+smf_sub_qos_mon = subscriptions.create_smf_subscription(smf_endpoint , sbi_addr , sbi_port , "QOS_MON", http_version )
 
 if amf_sub == "" or smf_sub == "":
     log.error("Subscription to CN events failed... Exiting \n check AMF and SMF connectivity")
@@ -181,9 +188,9 @@ if amf_sub == "" or smf_sub == "":
 #net_per_endpoint = subscriptions.get_network_performance_subscription_url(nwdaf_name, nwdaf_url)
 #net_per_sub = subscriptions.create_network_performance_subscription(net_per_endpoint, sbi_addr , sbi_port , nwdaf_url)
 
-log.info("Subscribing to NWDAF anomaly")
-anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
-anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
+#log.info("Subscribing to NWDAF anomaly")
+#anomaly_endpoint = subscriptions.get_anomaly_subscription_url(nwdaf_name, nwdaf_url)
+#anomaly_sub = subscriptions.create_anomaly_subscription(sbi_addr , sbi_port , anomaly_endpoint ,nwdaf_url )
 
 #log.info("Subscribing to NWDAF track UE location")
 #track_ue_endpoint = subscriptions. get_track_ue_location_url(nwdaf_name , nwdaf_url)
@@ -610,7 +617,7 @@ def terminator(signum, frame, ask=True):
     if smf_sub != "":
        with httpx.Client(http2=http_2, http1=http_1) as client:  
             url=smf_sub
-            print('--------------------------------------------------------------', url)
+            #print('--------------------------------------------------------------', url)
             r = client.delete(url)
             print(r.status_code)
             log.info(f"SMF Subscription delete status code: {r.status_code}")

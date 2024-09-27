@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['nfmanager_30',['NFManager',['../namespaceNFManager.html',1,'']]]
+  ['datamanager_85',['datamanager',['../namespacedatamanager.html',1,'']]]
 ];

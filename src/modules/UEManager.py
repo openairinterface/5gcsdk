@@ -7,6 +7,8 @@ from data_models.ue import UE
 from data_models.UEStatus import UEStatus
 from data_models.TrafficVolume import TrafficVolume
 from data_models.location import location as loc
+from enum import Enum, auto
+import requests
 
 
 def get_registered_ues():
@@ -273,7 +275,10 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
     }
     
     if ue_supi:
-        query['supi'] = ue_supi
+        if _is_valid_imsi(ue_supi) :
+            query['supi'] = ue_supi
+        else :            
+            raise ValueError("Invalid supi fromat")
     
     logger.info(f"Query: {query}")
 
@@ -303,16 +308,33 @@ def get_ue_traffic(start_time, end_time, ue_supi=None):
 
 def get_ue_location(imsi):
     """
-    Retrieves the NR Cell ID for a given IMSI from the MongoDB database, considering the latest timestamp.
+    Retrieves the NR Cell ID and TAC (Tracking Area Code) for a given IMSI (International Mobile Subscriber Identity)
+    from the MongoDB database, considering the latest timestamp. If the UE (User Equipment) is registered, it returns
+    the NR Cell ID and TAC; otherwise, it provides an appropriate message.
 
     :param imsi: The IMSI of the UE.
     :type imsi: str
-    :return: The NR Cell ID if found and registered, otherwise an appropriate message.
-    :rtype: str
+    :return: A dictionary containing the NR Cell ID and TAC if the UE is found and registered, or a message indicating
+             that no registered UE was found.
+    :rtype: dict or str
+
+    :raises AssertionError: If the required MongoDB collection ('amf_location_notification') is not found or if no documents
+                            are found in the collection.
+    :raises KeyError: If an expected key is missing in the documents retrieved from the database.
+    :raises Exception: For any other errors that occur during the retrieval and processing of data from the database.
+
+    Usage Example:
+    --------------
+    >>> imsi = "imsi-123456789012345"
+    >>> location_data = get_ue_location(imsi)
+    >>> if isinstance(location_data, dict):
+    >>>     print(f"NR Cell ID: {location_data['CELL_ID']}, TAC: {location_data['TAC']}")
+    >>> else:
+    >>>     print(location_data)
     """
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(__name__)
-    
+     
     try:
         client = MongoClient('mongodb://localhost:27017/')
         logging.getLogger('pymongo').setLevel(logging.WARNING)
@@ -363,3 +385,38 @@ def get_ue_location(imsi):
         logger.error(f"An error occurred: {e}")
         return "An error occurred while retrieving the NR Cell ID"
 
+
+
+def run_iperf(ue_ip: str, debit: str, time: str, protocol: str, interval: str, direction: str):
+    """
+    Run iperf test by sending an HTTP POST request with the given parameters.
+
+    Args:
+        ue_ip (str): IP address of the User Equipment.
+        debit (str): Desired data transfer rate in Mbps.
+        time (str): Test duration in seconds.
+        protocol (str): Transport protocol (TCP or UDP).
+        interval (str): Reporting interval for intermediate results.
+        direction (str): Test direction (UL for uplink, DL for downlink).
+    """
+    
+    # Define the data to be sent in the HTTP request
+    json_data = {
+            ue_ip: {
+                "debit": debit,
+                "time": time,
+                "protocol": protocol,
+                "interval": interval,
+                "direction": direction
+            }
+        }
+    
+    url ="http://192.168.73.135:80/run_iperf"
+    headers = {"Content-Type": "application/json"}   
+    response = requests.post(url, json=json_data, headers=headers)
+    
+    return response
+
+response = run_iperf("12.1.1.130", "10", "2", "TCP", "1", "UL")
+
+print(response)

@@ -6,6 +6,8 @@
 def \mbox{\hyperlink{namespaceRFsimUEManager_aad2aefb33b10fafcddf8151348a01e64}{add\+\_\+ues}} (nb\+\_\+ues)
 \item 
 def \mbox{\hyperlink{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}{remove\+\_\+ues}} (nb\+\_\+ues)
+\item 
+def \mbox{\hyperlink{namespaceRFsimUEManager_a6d5f2650c7f8a134d5e637aedb63cfbf}{list\+\_\+connected\+\_\+ues}} ()
 \end{DoxyCompactItemize}
 
 
@@ -23,10 +25,29 @@ It checks the existing containers, and if the number of UEs to deploy is within 
 
 :param nb_ues: The number of UE containers to deploy.
 :type nb_ues: int
+:raises AssertionError: If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+:raises Exception: For any other errors that occur while deploying the containers.
 
 Usage Example:
 --------------
 >>> add_ues(3)
+\end{DoxyVerb}
+ \mbox{\Hypertarget{namespaceRFsimUEManager_a6d5f2650c7f8a134d5e637aedb63cfbf}\label{namespaceRFsimUEManager_a6d5f2650c7f8a134d5e637aedb63cfbf}} 
+\index{RFsimUEManager@{RFsimUEManager}!list\_connected\_ues@{list\_connected\_ues}}
+\index{list\_connected\_ues@{list\_connected\_ues}!RFsimUEManager@{RFsimUEManager}}
+\doxysubsubsection{\texorpdfstring{list\_connected\_ues()}{list\_connected\_ues()}}
+{\footnotesize\ttfamily def RFsim\+UEManager.\+list\+\_\+connected\+\_\+ues (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Lists all connected User Equipment (UE) containers.
+
+This function retrieves and returns the list of currently running UE containers.
+
+:return: A list of names of running UE containers.
+:rtype: list
+
+Usage Example:
+--------------
+>>> list_connected_ues()
 \end{DoxyVerb}
  \mbox{\Hypertarget{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}\label{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}} 
 \index{RFsimUEManager@{RFsimUEManager}!remove\_ues@{remove\_ues}}
@@ -42,6 +63,8 @@ the UE containers up to the specified number.
 
 :param nb_ues: The number of UE containers to remove.
 :type nb_ues: int
+:raises AssertionError: If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+:raises Exception: For any other errors that occur while stopping and removing the containers.
 
 Usage Example:
 --------------

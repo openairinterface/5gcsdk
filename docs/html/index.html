@@ -74,6 +74,10 @@ $(function() {
       <li><b>UEManager:</b> Manage UEs within the 5G Core network.</li>
       <li><b>CallbackManager:</b> Register and handle event callbacks.</li>
       <li><b>NFManager:</b> Manage network functions within the 5G Core network.</li>
+      <li><b>DataManager:</b> Manage data streams within the core network.</li>
+      <li><b>NwdafManager:</b> Manage NWDAF analytics within the core network.</li>
+
+
     </ul>
     <p>Details for each package are available in the <code>Namespaces</code> section.</p>
     
@@ -98,11 +102,16 @@ $(function() {
     <h2>5. Usage</h2>
     <ol>
       <li>Initialize the OAI RFSIM5G environment.</li>
+      <li>The SDK allows for the configuration of network protocols. You can choose between HTTP/2 and HTTP/1 in the configuration file</li>
       <li>Import the <code>oai5gc</code> module.</li>
       <li>Use the functionalities provided by the SDK packages as needed.</li>
-      <li>Terminate the session by calling the<strong> <code>stop_handler()</code> </strong>function.</li>
-  
+      <li>To save core network (CN) data in a CSV file, set <strong><code>stop_handler(save_cn_history=True)</code></strong> when terminating the session.</li>
+      <li>Terminate the session by calling the<strong> <code>stop_handler()</code> </strong>function if you don't want the history to saved.</li>
     </ol>
+
+
+
+
   </div><!-- contents -->
   <!-- start footer part -->
   <hr class="footer"/><address class="footer"><small>
@@ -110,4 +119,3 @@ $(function() {
   </small></address>
   </body>
   </html>
-  

@@ -34,7 +34,28 @@ def start_handler():
         else:
             logger.debug("Handler process file not found.")
 
-def stop_handler(data_stream=False):
+def start_handler_nwdaf():
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
+    handler_path = os.path.join(current_dir, 'handler_nwdaf.py')
+
+    #with open(status_file_path, 'r') as file:
+       # data = yaml.safe_load(file)
+
+    #handler_status = data['handler_status']
+
+    #if handler_status == 'off':
+    if os.path.isfile(handler_path):
+        process = subprocess.Popen([sys.executable, handler_path])
+        #data['handler_pid'] = process.pid
+        #data['handler_status'] = 'on'
+        #with open(status_file_path, 'w') as file:
+            #   yaml.safe_dump(data, file)
+        logger.info("Handler process started.")
+    else:
+        logger.debug("Handler process file not found.")
+
+def stop_handler(save_cn_history=False):
     current_dir = os.path.dirname(os.path.abspath(__file__))
     status_file_path = os.path.join(current_dir, '../../etc/handler_status.yaml')
 
@@ -47,7 +68,7 @@ def stop_handler(data_stream=False):
         if handler_pid is not None:
             proc = psutil.Process(handler_pid)
             unregister_callback_ue()
-            if data_stream== True :  
+            if save_cn_history== True :  
                 data_stream=datastream.create_data_stream()
                 current_date = datetime.now().date()
                 filename= 'CN_history_'+ str(current_date)+'.csv'

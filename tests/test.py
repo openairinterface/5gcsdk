@@ -5,53 +5,74 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 src_main_dir = os.path.join(current_dir, '../src/main')
 sys.path.append(src_main_dir)
 
+#==========================================import sdk===========================================================================
+
 import oai5gc
 
-oai5gc.stop_handler()
-
+#==========================================add one ue ==========================================================================
 
 #oai5gc.RFsimUEManager.add_ues(1)
 
+#========================================== list connected ues containers =======================================================
+
+#oai5gc.RFsimUEManager.list_connected_ues()
+
+#==========================================give registred ues =================================================================
+
 #print(oai5gc.UEManager.get_registered_ues())
 
+#==========================================add 2 ues ===========================================================================
+
+#print(oai5gc.UEManager.get_ue_location('imsi-208990000000031'))
+
+#print(oai5gc.UEManager.get_ue_status('12.1.1.130'))
+
+
+#==========================================get anomaly ratio===================================================================
+
+#print(oai5gc.get_anomaly_ratio())
+
+#==========================================remove one ue =======================================================================
+
 #oai5gc.RFsimUEManager.remove_ues(1)
-data_selection = [
-        oai5gc.Metric.timestamp,
-        oai5gc.Metric.data_ul,
-        oai5gc.Metric.data_dl,
-        oai5gc.Metric.number_pkts_ul,
-        oai5gc.Metric.number_pkts_dl,
-        oai5gc.Metric.connectivity_status,
-        oai5gc.Metric.ip_address,
-        oai5gc.Metric.imsi,
-        oai5gc.Metric.dnn,
-        oai5gc.Metric.sst,
-        oai5gc.Metric.sd,
-        oai5gc.Metric.plmn,
-        oai5gc.Metric.amf_ngap_id,
-        oai5gc.Metric.gnb_ngap_id,
-        oai5gc.Metric.cell_id,
-        oai5gc.Metric.registration_status
-]
-#a=oai5gc.create_data_stream()
-#oai5gc.save_data_to_csv(a , 'dataa.csv')
 
-#oai5gc.UEManager.get_ue_status('12.1.1.130')
-#12.1.1.2
-def sample_callback(data):
-   print("UE DATA :", data)
-#def callback(ue) :
-    #print("ue connected" , ue)
+#==========================================register traffic callback ============================================================
 
-#def sample_callback2(data):
-  #   imsi = list(data.keys())[0]
- #    print("A UE status is updated with imsi:", imsi)
-#a=oai5gc.EventType.DATA_STREAM
-#oai5gc.register_callback_ue(sample_callback, a)
-#oai5gc.unregister_callback_ue()
-#oai5gc.register_callback_ue(sample_callback2, "UEStatus")
+def traffic_callback(traffic):
+   print("UE upload/download", traffic)
 
-#oai5gc.add_ues(2)
+def anomaly_callback(ratio) :
+    print("anomaly ratio" , ratio)
+
+#t=oai5gc.EventType.UE_TRAFFIC
+
+#oai5gc.register_callback_ue(traffic_callback, t)
+
+#==========================================register anomaly callback ============================================================
+
+#anomaly=oai5gc.EventType.ANOMALY
+
+#oai5gc.register_callback_ue(anomaly_callback, anomaly)
+
+#==========================================add 2 ues ===========================================================================
+
+#oai5gc.RFsimUEManager.add_ues(2)
+
+#==========================================create data stream  =================================================================
+
+data_selection = [oai5gc.Metric.imsi, oai5gc.Metric.ip_address]
+
+filters = [('registration_status', '==', 'REGISTERED')]
+
+ds=oai5gc.create_data_stream(data_selection , filters )
+
+#==========================================save data stream ============================================================
+
+#oai5gc.save_data_to_csv(ds , 'datastream.csv')
+
+#==========================================stop handler  ============================================================
+
+oai5gc.stop_handler(save_cn_history=True)
 
 #oai5gc.RFsimUEManager.remove_ues(1)
 
@@ -137,10 +158,10 @@ new_report = {
 #from datetime import datetime
 
 
-# Example timestamps
+# Example timestamps#
 #start_timestamp = 3929693438
 #end_timestamp = 3929693899
-# convert the timestamp to a datetime object in the local timezone
+#convert the timestamp to a datetime object in the local timezone
 #dt_object = datetime.fromtimestamp(end_timestamp)
 
 # print the datetime object and its type

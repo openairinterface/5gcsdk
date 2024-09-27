@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=9"/>
 <meta name="generator" content="Doxygen 1.9.1"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>My Project: RFsimUEManager Namespace Reference</title>
+<title>5gcsdk: RFsimUEManager Namespace Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -21,7 +21,7 @@
  <tbody>
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
-   <div id="projectname">My Project
+   <div id="projectname">5gcsdk
    </div>
   </td>
  </tr>
@@ -74,6 +74,8 @@ Functions</h2></td></tr>
 <tr class="separator:aad2aefb33b10fafcddf8151348a01e64"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ab50c0ee86e9e91cedf460e4f2deedada"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceRFsimUEManager.html#ab50c0ee86e9e91cedf460e4f2deedada">remove_ues</a> (nb_ues)</td></tr>
 <tr class="separator:ab50c0ee86e9e91cedf460e4f2deedada"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d5f2650c7f8a134d5e637aedb63cfbf"><td class="memItemLeft" align="right" valign="top">def&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="namespaceRFsimUEManager.html#a6d5f2650c7f8a134d5e637aedb63cfbf">list_connected_ues</a> ()</td></tr>
+<tr class="separator:a6d5f2650c7f8a134d5e637aedb63cfbf"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <h2 class="groupheader">Function Documentation</h2>
 <a id="aad2aefb33b10fafcddf8151348a01e64"></a>
@@ -91,22 +93,49 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-  <pre class="fragment">Deploys a specified number of User Equipment (UE) containers.
-        
-    This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
-    It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
-    
-    <strong> nb_ues:</strong> The number of UE containers to deploy.
-    <strong>:type nb_ues:</strong> int
-    <strong>:raises AssertionError:</strong> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
-    <strong>:raises Exception:</strong> For any other errors that occur while deploying the containers.
+<pre class="fragment">Deploys a specified number of User Equipment (UE) containers.
 
-    <strong>Usage Example:</strong> 
-    --------------
-    <code>>>> add_ues(3)</code>
-  </pre> 
-  </div>
-  </div>
+This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
+It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
+
+<b>nb_ues:</b> The number of UE containers to deploy.
+<b>:type nb_ues:</b> int
+<b>:raises AssertionError:</b> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+<b>:raises Exception:</b> For any other errors that occur while deploying the containers.
+
+<b>Usage Example:</b> 
+--------------
+&gt;&gt;&gt; add_ues(3)
+</pre> 
+</div>
+</div>
+<a id="a6d5f2650c7f8a134d5e637aedb63cfbf"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d5f2650c7f8a134d5e637aedb63cfbf">&#9670;&nbsp;</a></span>list_connected_ues()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">def RFsimUEManager.list_connected_ues </td>
+          <td>(</td>
+          <td class="paramname"></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<pre class="fragment">Lists all connected User Equipment (UE) containers.
+
+This function retrieves and returns the list of currently running UE containers.
+
+<b>:return:</b> A list of names of running UE containers.
+<b>:rtype:</b> list
+
+<b>Usage Example:</b> 
+--------------
+&gt;&gt;&gt; list_connected_ues()
+</pre> 
+</div>
+</div>
 <a id="ab50c0ee86e9e91cedf460e4f2deedada"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#ab50c0ee86e9e91cedf460e4f2deedada">&#9670;&nbsp;</a></span>remove_ues()</h2>
 
@@ -122,23 +151,23 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-  <pre class="fragment">Removes a specified number of User Equipment (UE) containers.
+<pre class="fragment">Removes a specified number of User Equipment (UE) containers.
 
-    This function stops and removes the specified number of UE containers
-    using Docker commands. It checks the existing containers and stops and removes
-    the UE containers up to the specified number.
-  
-    <strong>nb_ues:</strong>  The number of UE containers to remove.
-    <strong>:type nb_ues:</strong>  int
-    <strong>:raises AssertionError:</strong> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
-    <strong>:raises Exception:</strong> For any other errors that occur while stopping and removing the containers.
+This function stops and removes the specified number of UE containers
+using Docker commands. It checks the existing containers and stops and removes
+the UE containers up to the specified number.
 
-    <strong>Usage Example:</strong> 
-    --------------
-   <code> >>> remove_ues(2)</code>
-  </pre> 
-  </div>
-  </div>
+<b>:param nb_ues:</b> The number of UE containers to remove.
+<b>:type nb_ues:</b> int
+<b>:raises AssertionError:</b> If nb_ues is not an integer or not within the range of 1 to 10 inclusive.
+<b>:raises Exception:</b> For any other errors that occur while stopping and removing the containers.
+
+<b>Usage Example:</b>
+--------------
+&gt;&gt;&gt; remove_ues(2)
+</pre> 
+</div>
+</div>
 </div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>

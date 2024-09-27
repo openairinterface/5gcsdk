@@ -1,9 +1,9 @@
 var searchData=
 [
-  ['register_5fcallback_5fue_12',['register_callback_ue',['../namespaceCallbackManager.html#a8ef83e093191fe41ecdd2644ee9e1b57',1,'CallbackManager']]],
-  ['register_5fnf_13',['register_nf',['../namespaceNFManager.html#a3d9f1187a21018fd13511f83152a935f',1,'NFManager']]],
-  ['registered_5fues_14',['REGISTERED_UES',['../classCallbackManager_1_1EventType.html#ae640b2be7492c5d11f859025b87449c9',1,'CallbackManager::EventType']]],
-  ['remove_5fues_15',['remove_ues',['../namespaceRFsimUEManager.html#ab50c0ee86e9e91cedf460e4f2deedada',1,'RFsimUEManager']]],
-  ['rfsimuemanager_16',['RFsimUEManager',['../namespaceRFsimUEManager.html',1,'']]],
-  ['rfsimuemanager_2epy_17',['RFsimUEManager.py',['../RFsimUEManager_8py.html',1,'']]]
+  ['get_5fanomaly_5fratio_26',['get_anomaly_ratio',['../namespaceNwdafManager.html#a517ee8978b20017ea963a93b0ae73c92',1,'NwdafManager']]],
+  ['get_5fregistered_5fues_27',['get_registered_ues',['../namespaceUEManager.html#a915d290d694138bdc332d71ac4456ee4',1,'UEManager']]],
+  ['get_5fue_5flocation_28',['get_ue_location',['../namespaceUEManager.html#a7ed068d5596fd03ed58d462c16967a08',1,'UEManager']]],
+  ['get_5fue_5fstatus_29',['get_ue_status',['../namespaceUEManager.html#a25e4b2936878a1ac477d802b07736fef',1,'UEManager']]],
+  ['get_5fue_5ftraffic_30',['get_ue_traffic',['../namespaceUEManager.html#a59bf788ef393e4170a8905efd1c8524b',1,'UEManager']]],
+  ['gnb_5fngap_5fid_31',['gnb_ngap_id',['../classdatamanager_1_1Metric.html#a899b23762e461c34de8c05985adfe319',1,'datamanager::Metric']]]
 ];

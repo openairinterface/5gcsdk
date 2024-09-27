@@ -1,5 +1,6 @@
 var searchData=
 [
-  ['get_5fregistered_5fues_43',['get_registered_ues',['../namespaceUEManager.html#a915d290d694138bdc332d71ac4456ee4',1,'UEManager']]],
-  ['get_5fue_5fstatus_44',['get_ue_status',['../namespaceUEManager.html#a25e4b2936878a1ac477d802b07736fef',1,'UEManager']]]
+  ['create_5fdata_5fstream_102',['create_data_stream',['../namespacedatamanager.html#a3de74b691cb223d11a05129116b30d05',1,'datamanager']]],
+  ['createamfsubscription_103',['createAmfSubscription',['../namespacesubscription.html#a692adec071b9c718b0bae75e3b34ad65',1,'subscription']]],
+  ['createsmfsubscription_104',['createSmfSubscription',['../namespacesubscription.html#a5c8ba3b66ca5a475a6c52c61208cd69c',1,'subscription']]]
 ];

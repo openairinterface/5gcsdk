@@ -38,4 +38,3 @@ import NFManager
 from init_handler import *
 from NwdafManager import *
 start_handler()
-
