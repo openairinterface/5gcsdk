@@ -9,7 +9,20 @@ from data_models.TrafficVolume import TrafficVolume
 from data_models.location import location as loc
 from enum import Enum, auto
 import requests
+import json
+import os 
+import yaml
+from yaml.loader import SafeLoader
 
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(os.path.dirname(current_dir))
+config_file_path = os.path.join(parent_dir, 'etc', 'configuration.yaml')
+
+with open(config_file_path, 'r') as f:
+    data = yaml.load(f, Loader=SafeLoader)
+
+traffic_server_ip  = data['traffic_server']['ip']
+traffic_server_port  = data['traffic_server']['port']
 
 def get_registered_ues():
     """
@@ -386,7 +399,6 @@ def get_ue_location(imsi):
         return "An error occurred while retrieving the NR Cell ID"
 
 
-
 def run_iperf(ue_ip: str, debit: str, time: str, protocol: str, interval: str, direction: str):
     """
     Run iperf test by sending an HTTP POST request with the given parameters.
@@ -399,24 +411,294 @@ def run_iperf(ue_ip: str, debit: str, time: str, protocol: str, interval: str, d
         interval (str): Reporting interval for intermediate results.
         direction (str): Test direction (UL for uplink, DL for downlink).
     """
+    client = MongoClient('mongodb://localhost:27017/')
+    assert client is not None, "Failed to connect to MongoDB"
+    
+    db = client['notification_db']
+    traffic_server_collection = db['traffic']    
     
     # Define the data to be sent in the HTTP request
     json_data = {
-            ue_ip: {
-                "debit": debit,
-                "time": time,
-                "protocol": protocol,
-                "interval": interval,
-                "direction": direction
-            }
+        ue_ip: {
+            "debit": debit,
+            "time": time,
+            "protocol": protocol,
+            "interval": interval,
+            "direction": direction
         }
+    }
     
-    url ="http://192.168.73.135:80/run_iperf"
-    headers = {"Content-Type": "application/json"}   
+    url = f"http://{traffic_server_ip}:{traffic_server_port}/run_iperf"
+    headers = {"Content-Type": "application/json"}
+    
+    # Send the POST request to run the iperf test
     response = requests.post(url, json=json_data, headers=headers)
     
-    return response
+    # Check if the iperf test was triggered successfully
+    if response.status_code == 200:
+        print(f"Iperf test started successfully for UE IP: {ue_ip}")
+    else:
+        print(f"Failed to start iperf test: {response.status_code}, {response.text}")
+    
+    if response.status_code == 200:    
+        logs_url = f"http://{traffic_server_ip}:{traffic_server_port}/iperf_logs"
+        iperf_log = requests.get(logs_url)
 
-response = run_iperf("12.1.1.130", "10", "2", "TCP", "1", "UL")
+        if iperf_log.status_code == 200:
+                # Get the logs from the iperf_log JSON
+                logs = iperf_log.json().get("iperf_logs", [])
+                if logs:
+                    print("Filtered Iperf Logs:")
+                    for raw_log in logs:
+                        try:
+                            # Extract relevant details
+                            is_reverse = raw_log["start"]["test_start"]["reverse"] == 1
+                            uplink = {
+                                "bits_per_second": raw_log["end"]["sum_sent"]["bits_per_second"],
+                                "bytes": raw_log["end"]["sum_sent"]["bytes"],
+                                "retransmits": raw_log["end"]["sum_sent"]["retransmits"]
+                            }
+                            downlink = {
+                                "bits_per_second": raw_log["end"]["sum_received"]["bits_per_second"],
+                                "bytes": raw_log["end"]["sum_received"]["bytes"]
+                            }
 
-print(response)
+                            # Extract relevant details
+                            summary = {
+                                "start_time": raw_log["start"]["timestamp"]["time"],
+                                "protocol": raw_log["start"]["test_start"]["protocol"],
+                                "direction": "Reverse (UL)" if is_reverse else "Normal (DL)",
+                                "target_bitrate": raw_log["start"]["target_bitrate"]
+                            }
+                            performance = {
+                                "uplink": uplink if is_reverse else downlink,
+                                "downlink": downlink if is_reverse else uplink,
+                                "cpu_utilization": {
+                                    "host_total": raw_log["end"]["cpu_utilization_percent"]["host_total"],
+                                    "remote_total": raw_log["end"]["cpu_utilization_percent"]["remote_total"]
+                                }
+                            }
+                            connection = {
+                                "local": {
+                                    "host": raw_log["start"]["connected"][0]["local_host"],
+                                    "port": raw_log["start"]["connected"][0]["local_port"]
+                                },
+                                "remote": {
+                                    "host": raw_log["start"]["connected"][0]["remote_host"],
+                                    "port": raw_log["start"]["connected"][0]["remote_port"]
+                                },
+                                "tcp_congestion_algorithm": raw_log["end"]["sender_tcp_congestion"]
+                            }
+
+                            simplified_log = {
+                                "summary": summary,
+                                "performance": performance,
+                                "connection": connection
+                            }
+
+                            # Print the filtered log
+                            print(json.dumps(simplified_log, indent=4))
+                        except KeyError as e:
+                            print(f"Error processing log: missing key {e}")
+                else:
+                    print("No iperf logs available.")
+        else:
+            print(f"Failed to fetch logs: {iperf_log.status_code}, {iperf_log.text}")    
+
+    else:
+        print("No iperf logs available.")
+
+    traffic_server_collection.insert_one(simplified_log)
+
+
+# Define the function to get the iperf logs
+import requests
+import json
+
+def get_iperf_logs():
+    """
+    Get and filter iperf logs by sending an HTTP GET request to the /iperf_logs endpoint.
+    """
+    logs_url = f"http://{traffic_server_ip}:{traffic_server_port}/iperf_logs"
+    iperf_log = requests.get(logs_url)
+    
+    if iperf_log.status_code == 200:
+        # Get the logs from the iperf_log JSON
+        logs = iperf_log.json().get("iperf_logs", [])
+        if logs:
+            print("Filtered Iperf Logs:")
+            for raw_log in logs:
+                try:
+                    # Determine the direction
+                    is_reverse = raw_log["start"]["test_start"]["reverse"] == 1
+                    uplink = {
+                        "bits_per_second": raw_log["end"]["sum_sent"]["bits_per_second"],
+                        "bytes": raw_log["end"]["sum_sent"]["bytes"],
+                        "retransmits": raw_log["end"]["sum_sent"]["retransmits"]
+                    }
+                    downlink = {
+                        "bits_per_second": raw_log["end"]["sum_received"]["bits_per_second"],
+                        "bytes": raw_log["end"]["sum_received"]["bytes"]
+                    }
+
+                    # Extract relevant details
+                    summary = {
+                        "start_time": raw_log["start"]["timestamp"]["time"],
+                        "protocol": raw_log["start"]["test_start"]["protocol"],
+                        "direction": "Reverse (UL)" if is_reverse else "Normal (DL)",
+                        "target_bitrate": raw_log["start"]["target_bitrate"]
+                    }
+                    performance = {
+                        "uplink": uplink if is_reverse else downlink,
+                        "downlink": downlink if is_reverse else uplink,
+                        "cpu_utilization": {
+                            "host_total": raw_log["end"]["cpu_utilization_percent"]["host_total"],
+                            "remote_total": raw_log["end"]["cpu_utilization_percent"]["remote_total"]
+                        }
+                    }
+                    connection = {
+                        "local": {
+                            "host": raw_log["start"]["connected"][0]["local_host"],
+                            "port": raw_log["start"]["connected"][0]["local_port"]
+                        },
+                        "remote": {
+                            "host": raw_log["start"]["connected"][0]["remote_host"],
+                            "port": raw_log["start"]["connected"][0]["remote_port"]
+                        },
+                        "tcp_congestion_algorithm": raw_log["end"]["sender_tcp_congestion"]
+                    }
+
+                    simplified_log = {
+                        "summary": summary,
+                        "performance": performance,
+                        "connection": connection
+                    }
+
+                    # Print the filtered log
+                    print(json.dumps(simplified_log, indent=4))
+                except KeyError as e:
+                    print(f"Error processing log: missing key {e}")
+        else:
+            print("No iperf logs available.")
+    else:
+        print(f"Failed to fetch logs: {iperf_log.status_code}, {iperf_log.text}")
+
+
+
+
+
+#response = run_iperf("192.168.70.160", "100", "2", "TCP", "1", "UL")
+
+#print(response.json())
+
+#get_iperf_logs()
+
+#print(traffic_server_ip)
+
+
+def run_iperf_random(ue_ip , distribution_type , total_duration , mean_interval , stddev_interval_or_lambda , total_bandwidth , mean_bandwidth , stddev_bandwidth_or_lambda , on_off = 0):
+    """
+    Run iperf test by sending an HTTP POST request with the given parameters.
+
+    Args:
+        ue_ip (str): IP address of the User Equipment.
+        debit (str): Desired data transfer rate in Mbps.
+        time (str): Test duration in seconds.
+        protocol (str): Transport protocol (TCP or UDP).
+        interval (str): Reporting interval for intermediate results.
+        direction (str): Test direction (UL for uplink, DL for downlink).
+    """
+    client = MongoClient('mongodb://localhost:27017/')
+    assert client is not None, "Failed to connect to MongoDB"
+    
+    db = client['notification_db']
+    traffic_server_collection = db['traffic']    
+    
+    # Define the data to be sent in the HTTP request
+    json_data = {
+        "ip" : ue_ip ,
+        "distribution_type" : distribution_type ,
+        "total_duration" : total_duration ,
+        "mean_interval" : mean_interval ,
+        "stddev_interval_or_lambda": stddev_interval_or_lambda ,
+        "total_bandwidth": total_bandwidth ,
+        "mean_bandwidth" : mean_bandwidth ,
+        "stddev_bandwidth_or_lambda" : stddev_bandwidth_or_lambda ,
+        "on_off" : on_off ,
+    }
+    
+    url = f"http://{traffic_server_ip}:{traffic_server_port}/run_iperf"
+    headers = {"Content-Type": "application/json"}
+    
+    # Send the POST request to run the iperf test
+    response = requests.post(url, json=json_data, headers=headers)
+    
+    # Check if the iperf test was triggered successfully
+    if response.status_code == 200:
+        print(f"Iperf test done successfully for UE IP: {ue_ip}")
+    else:
+        print(f"Failed to start iperf test: {response.status_code}, {response.text}")
+
+
+def random_iperf_logs():
+    """
+    Get and filter iperf logs by sending an HTTP GET request to the /iperf_logs endpoint.
+    """
+    logs_url = f"http://{traffic_server_ip}:{traffic_server_port}/iperf_logs"
+    
+    try:
+        # Send an HTTP GET request to the /iperf_logs endpoint
+        iperf_log = requests.get(logs_url)
+        
+        if iperf_log.status_code == 200:
+            # Get the logs from the iperf_log JSON
+            logs = iperf_log.json().get("iperf_logs", [])
+            
+            # Save logs to a JSON file
+            output_file = "iperf_logs.json"
+            with open(output_file, "w") as json_file:
+                json.dump(logs, json_file, indent=4)
+            
+            print(f"Logs have been successfully saved to {output_file}")
+        else:
+            print(f"Failed to retrieve logs. HTTP status code: {iperf_log.status_code}")
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    return
+
+DEFAULT_DISTRIBUTION_TYPE = 'gaussian'  # Use 'gaussian' as default
+DEFAULT_TOTAL_DURATION = 60  #  total duration in seconds
+DEFAULT_MEAN_INTERVAL = 5  #  mean interval in seconds
+DEFAULT_STDDEV_INTERVAL = 1  #  standard deviation for intervals
+DEFAULT_TOTAL_BANDWIDTH = 1000  #  total bandwidth in Mbps
+DEFAULT_MEAN_BANDWIDTH = 200  #  mean bandwidth per interval in Mbps
+DEFAULT_STDDEV_BANDWIDTH = 50  #  standard deviation for bandwidth
+on_off                   = 20   # % of the OFF time 
+#run_iperf_random("192.168.70.160" , "gaussian" , 60 , 5 , 3 , 1000 , 200 , 50 , 20)
+
+
+#random_iperf_logs()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

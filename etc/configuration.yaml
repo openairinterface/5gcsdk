@@ -15,4 +15,7 @@ smf_1:
 nwdaf-sbi:
   name: oai-nwdaf-nbi-gateway
   url: /nnwdaf-eventssubscription/v1
+traffic_server:
+  ip: 192.168.70.135
+  port: 5001
 http_version: 2
