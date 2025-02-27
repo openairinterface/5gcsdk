@@ -1,0 +1,22 @@
+amf:
+  ip: 192.168.70.132
+  port: 80
+  baseUrl: /namf-evts/v1
+
+smf:
+  ip: 192.168.70.133
+  port: 80
+  baseUrl: /nsmf_event-exposure/v1
+
+sbi:  # Fixed indentation
+  ip: 192.168.70.1
+  port: 80
+
+trafficserver:  # Fixed indentation
+  ip: 192.168.73.135
+  port: 80
+
+
+
+
+
