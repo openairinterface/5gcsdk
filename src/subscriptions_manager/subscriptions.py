@@ -58,7 +58,7 @@ def create_smf_subscription(sub_endpoint , ip_addr, port, event):
         r = requests.post(url=sub_endpoint, json=sub_body)
         if r.status_code == 201:
             loc = r.headers['Location']
-            locs = loc.split("nsmf_event-exposure/")
+            locs = loc.split("nsmf-event-exposure/")
             return sub_endpoint+"/"+locs[2]
         else:
             return ""
