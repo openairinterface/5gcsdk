@@ -23,7 +23,7 @@ def createAmfSubscription(ip_addr='192.168.71.129', port=1112, amf_ip='192.168.7
     except:
         return ""
 
-def createSmfSubscription(ip_addr='192.168.71.129', port=1112, smf_ip='192.168.71.133', smf_port=80, smf_url='/nsmf_event-exposure/v1'):
+def createSmfSubscription(ip_addr='192.168.71.129', port=1112, smf_ip='192.168.71.133', smf_port=80, smf_url='/nsmf-event-exposure/v1'):
     sub_endpoint = f"http://{smf_ip}:{smf_port}{smf_url}/subscriptions"
     sub_body = {
         "anyUeInd": True,
@@ -42,7 +42,7 @@ def createSmfSubscription(ip_addr='192.168.71.129', port=1112, smf_ip='192.168.7
         r = requests.post(url=sub_endpoint, json=sub_body)
         if r.status_code == 201:
             loc = r.headers['Location']
-            locs = loc.split("nsmf_event-exposure/")
+            locs = loc.split("nsmf-event-exposure/")
             return f"http://{smf_ip}:{smf_port}{smf_url}/subscriptions/{locs[2]}"
         else:
             return ""
