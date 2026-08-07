@@ -1,0 +1,50 @@
+\hypertarget{namespaceRFsimUEManager}{}\doxysection{RFsim\+UEManager Namespace Reference}
+\label{namespaceRFsimUEManager}\index{RFsimUEManager@{RFsimUEManager}}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceRFsimUEManager_aad2aefb33b10fafcddf8151348a01e64}{add\+\_\+ues}} (nb\+\_\+ues)
+\item 
+def \mbox{\hyperlink{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}{remove\+\_\+ues}} (nb\+\_\+ues)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceRFsimUEManager_aad2aefb33b10fafcddf8151348a01e64}\label{namespaceRFsimUEManager_aad2aefb33b10fafcddf8151348a01e64}} 
+\index{RFsimUEManager@{RFsimUEManager}!add\_ues@{add\_ues}}
+\index{add\_ues@{add\_ues}!RFsimUEManager@{RFsimUEManager}}
+\doxysubsubsection{\texorpdfstring{add\_ues()}{add\_ues()}}
+{\footnotesize\ttfamily def RFsim\+UEManager.\+add\+\_\+ues (\begin{DoxyParamCaption}\item[{}]{nb\+\_\+ues }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Deploys a specified number of User Equipment (UE) containers.
+
+This function deploys the specified number of UE containers given by the client as an argument using Docker Compose.
+It checks the existing containers, and if the number of UEs to deploy is within the range of available UE names, it starts the deployment.
+
+:param nb_ues: The number of UE containers to deploy.
+:type nb_ues: int
+
+Usage Example:
+--------------
+>>> add_ues(3)
+\end{DoxyVerb}
+ \mbox{\Hypertarget{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}\label{namespaceRFsimUEManager_ab50c0ee86e9e91cedf460e4f2deedada}} 
+\index{RFsimUEManager@{RFsimUEManager}!remove\_ues@{remove\_ues}}
+\index{remove\_ues@{remove\_ues}!RFsimUEManager@{RFsimUEManager}}
+\doxysubsubsection{\texorpdfstring{remove\_ues()}{remove\_ues()}}
+{\footnotesize\ttfamily def RFsim\+UEManager.\+remove\+\_\+ues (\begin{DoxyParamCaption}\item[{}]{nb\+\_\+ues }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Removes a specified number of User Equipment (UE) containers.
+
+This function stops and removes the specified number of UE containers
+using Docker commands. It checks the existing containers and stops and removes
+the UE containers up to the specified number.
+
+:param nb_ues: The number of UE containers to remove.
+:type nb_ues: int
+
+Usage Example:
+--------------
+>>> remove_ues(2)
+\end{DoxyVerb}
+ 

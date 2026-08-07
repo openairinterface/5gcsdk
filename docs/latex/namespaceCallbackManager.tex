@@ -1,0 +1,67 @@
+\hypertarget{namespaceCallbackManager}{}\doxysection{Callback\+Manager Namespace Reference}
+\label{namespaceCallbackManager}\index{CallbackManager@{CallbackManager}}
+\doxysubsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+class \mbox{\hyperlink{classCallbackManager_1_1EventType}{Event\+Type}}
+\end{DoxyCompactItemize}
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+def \mbox{\hyperlink{namespaceCallbackManager_a8ef83e093191fe41ecdd2644ee9e1b57}{register\+\_\+callback\+\_\+ue}} (callback\+\_\+function, event\+\_\+type)
+\item 
+def \mbox{\hyperlink{namespaceCallbackManager_ab557d9d09f9c549f660788955d5f9a8b}{unregister\+\_\+callback\+\_\+ue}} (function\+\_\+name=None, event\+\_\+type=None)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{namespaceCallbackManager_a8ef83e093191fe41ecdd2644ee9e1b57}\label{namespaceCallbackManager_a8ef83e093191fe41ecdd2644ee9e1b57}} 
+\index{CallbackManager@{CallbackManager}!register\_callback\_ue@{register\_callback\_ue}}
+\index{register\_callback\_ue@{register\_callback\_ue}!CallbackManager@{CallbackManager}}
+\doxysubsubsection{\texorpdfstring{register\_callback\_ue()}{register\_callback\_ue()}}
+{\footnotesize\ttfamily def Callback\+Manager.\+register\+\_\+callback\+\_\+ue (\begin{DoxyParamCaption}\item[{}]{callback\+\_\+function,  }\item[{}]{event\+\_\+type }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Registers a callback function for the specified event type and stores it in a file called callbacks.py.
+
+This function takes a callback function and an event type as input parameters. It extracts the source code
+of the callback function and writes it to a file called callbacks.py. Additionally, it updates an events.json
+file to store the registered callback function under the corresponding event type.
+
+:param callback_function: The callback function to register.
+:type callback_function: function
+:param event_type: The type of event for which the callback function is registered (e.g., EventType.REGISTERED_UES).
+:type event_type: EventType
+:return: None
+:raises: Exception if an error occurs while writing to the file.
+
+Usage Example:
+--------------
+>>> def sample_callback(data):
+>>>     print("Callback called with data:", data)
+>>> 
+>>> register_callback_ue(sample_callback, EventType.REGISTERED_UES)
+\end{DoxyVerb}
+ \mbox{\Hypertarget{namespaceCallbackManager_ab557d9d09f9c549f660788955d5f9a8b}\label{namespaceCallbackManager_ab557d9d09f9c549f660788955d5f9a8b}} 
+\index{CallbackManager@{CallbackManager}!unregister\_callback\_ue@{unregister\_callback\_ue}}
+\index{unregister\_callback\_ue@{unregister\_callback\_ue}!CallbackManager@{CallbackManager}}
+\doxysubsubsection{\texorpdfstring{unregister\_callback\_ue()}{unregister\_callback\_ue()}}
+{\footnotesize\ttfamily def Callback\+Manager.\+unregister\+\_\+callback\+\_\+ue (\begin{DoxyParamCaption}\item[{}]{function\+\_\+name = {\ttfamily None},  }\item[{}]{event\+\_\+type = {\ttfamily None} }\end{DoxyParamCaption})}
+
+\begin{DoxyVerb}Unregisters a callback function for the specified event type and removes it from callbacks.py and events.json.
+If no arguments are provided, removes all callback functions from callbacks.py and events.json.
+
+:param function_name: The name of the callback function to unregister.
+:type function_name: str, optional
+:param event_type: The type of event for which the callback function is unregistered (e.g., EventType.REGISTERED_UES).
+:type event_type: EventType, optional
+:return: None
+:raises: Exception if an error occurs while modifying the files.
+
+Usage Example:
+--------------
+
+>>> event = EventType.REGISTERED_UES
+>>> unregister_callback_ue('sample_callback', event)
+>>> unregister_callback_ue()  # This will remove all callback functions
+\end{DoxyVerb}
+ 

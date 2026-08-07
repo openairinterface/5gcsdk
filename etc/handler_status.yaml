@@ -1,0 +1,4 @@
+# SPDX-License-Identifier: MIT
+
+handler_pid: None
+handler_status: 'off'
