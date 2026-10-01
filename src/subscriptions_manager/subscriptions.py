@@ -4,6 +4,9 @@ import uuid
 import requests
 from datetime import datetime
 
+# Seconds to wait for an NF to answer a subscription request before treating it as failed.
+SUBSCRIBE_TIMEOUT = 5
+
 
 #==================================================================
 #                    AMF_SUBSCRIPTION                             #
@@ -23,14 +26,14 @@ def create_amf_subscription(sub_endpoint , ip_addr, port, event):
         }
     }
     try:
-        r = requests.post(url=sub_endpoint, json=sub_body)
+        r = requests.post(url=sub_endpoint, json=sub_body, timeout=SUBSCRIBE_TIMEOUT)
         if r.status_code == 201:
             loc = r.headers['Location']
             locs = loc.split("namf-evts/")
             return sub_endpoint+"/"+ locs[2]
         else:
             return ""
-    except:
+    except Exception:  # not bare: must not swallow the SystemExit from a SIGTERM
         return ""
 
 
@@ -57,14 +60,14 @@ def create_smf_subscription(sub_endpoint , ip_addr, port, event):
         "eventNotifs": [{"event": event, "timeStamp": str(datetime.utcnow().isoformat()[:-3])+'Z'}]
     }
     try:
-        r = requests.post(url=sub_endpoint, json=sub_body)
+        r = requests.post(url=sub_endpoint, json=sub_body, timeout=SUBSCRIBE_TIMEOUT)
         if r.status_code == 201:
             loc = r.headers['Location']
             locs = loc.split("nsmf-event-exposure/")
             return sub_endpoint+"/"+locs[2]
         else:
             return ""
-    except:
+    except Exception:  # not bare: must not swallow the SystemExit from a SIGTERM
         return ""
 
 
@@ -127,7 +130,7 @@ def create_network_performance_subscription(sub_endpoint, sbi_ip , sbi_port , nw
     }
 
     try:
-        r = requests.post(sub_endpoint, json=sub_body)
+        r = requests.post(sub_endpoint, json=sub_body, timeout=SUBSCRIBE_TIMEOUT)
         print(r.status_code)
 
         if(r.status_code == 201):
@@ -137,7 +140,7 @@ def create_network_performance_subscription(sub_endpoint, sbi_ip , sbi_port , nw
             return loc
         else:
             return ""
-    except:
+    except Exception:  # not bare: must not swallow the SystemExit from a SIGTERM
         return ""
 
 
@@ -169,7 +172,7 @@ def create_anomaly_subscription(sbi_ip , sbi_port , sub_endpoint ,nwdaf_url ):
     }
 
     try:
-        r = requests.post(sub_endpoint, json=sub_body)
+        r = requests.post(sub_endpoint, json=sub_body, timeout=SUBSCRIBE_TIMEOUT)
         print(r.status_code)
 
         if(r.status_code == 201):
@@ -180,7 +183,7 @@ def create_anomaly_subscription(sbi_ip , sbi_port , sub_endpoint ,nwdaf_url ):
             return loc
         else:
             return ""
-    except:
+    except Exception:  # not bare: must not swallow the SystemExit from a SIGTERM
         return ""
     
 
@@ -210,7 +213,7 @@ def create_track_ue_location(sbi_ip, sbi_port, sub_endpoint, nwdaf_url ):
     }
 
     try:
-        r = requests.post(sub_endpoint, json=sub_body)
+        r = requests.post(sub_endpoint, json=sub_body, timeout=SUBSCRIBE_TIMEOUT)
         print(r.status_code)
 
         if(r.status_code == 201):
@@ -220,5 +223,5 @@ def create_track_ue_location(sbi_ip, sbi_port, sub_endpoint, nwdaf_url ):
             return loc
         else:
             return ""
-    except:
+    except Exception:  # not bare: must not swallow the SystemExit from a SIGTERM
        return ""

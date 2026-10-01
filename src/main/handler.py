@@ -31,6 +31,8 @@ sys.path.append(os.path.join(parent_dir, 'subscriptions_manager'))
 from data_models.Metric import Metric
 import callbacks as callbacks
 import signal
+import threading
+import time
 import requests
 import subprocess
 from flask import Flask, request , jsonify
@@ -116,6 +118,50 @@ def clean_collections():
     log.info("Collections cleaned.")
     
 clean_collections()
+
+# Subscription URLs, filled in as each subscription is created; "" means not subscribed.
+amf_sub = amf_sub_location = smf_sub = smf_sub_qos_mon = ""
+net_per_sub = anomaly_sub = track_ue_sub = ""
+
+# Define termination handler
+# Deletions run in parallel and must all finish within this budget, which has to stay
+# below the 5 s stop_handler() waits before it kills the handler.
+SHUTDOWN_DEADLINE = 3
+
+def delete_subscription(name, url):
+    try:
+        response = requests.delete(url, timeout=SHUTDOWN_DEADLINE)
+        log.info(f"{name} subscription delete status code: {response.status_code}")
+    except requests.RequestException as error:
+        log.error(f"{name} subscription delete failed: {error}")
+
+def terminator(signum, frame):
+    log.info("Terminating...")
+    subscriptions_to_delete = [
+        ("AMF registration", amf_sub),
+        ("AMF location", amf_sub_location),
+        ("SMF PDU session", smf_sub),
+        ("SMF QoS monitoring", smf_sub_qos_mon),
+        ("NWDAF network performance", net_per_sub),
+        ("NWDAF anomaly", anomaly_sub),
+        ("NWDAF track UE location", track_ue_sub),
+    ]
+    # Daemon threads, so a deletion still hanging at the deadline cannot block the exit.
+    threads = [threading.Thread(target=delete_subscription, args=(name, url), daemon=True)
+               for name, url in subscriptions_to_delete if url != ""]
+    for thread in threads:
+        thread.start()
+    deadline = time.monotonic() + SHUTDOWN_DEADLINE
+    for thread in threads:
+        thread.join(max(0, deadline - time.monotonic()))
+    if any(thread.is_alive() for thread in threads):
+        log.warning(f"Some subscription deletions did not finish within {SHUTDOWN_DEADLINE}s")
+    sys.exit(0)
+
+
+# Registered before the first subscription is created, so a SIGTERM during startup still cleans up.
+signal.signal(signal.SIGTERM, terminator)
+signal.signal(signal.SIGINT, terminator)
 
 # -------------------Initialize CN_subscriptions----------------------------------------------------------------
 
@@ -336,39 +382,6 @@ def receive_network_performance_notification():
 
 
 
+
 if __name__ == "__main__":
-    app.run(host=sbi_addr, port=1112,debug=False )
-
-# Define termination handler
-def terminator(signum, frame, ask=True):
-    log.info("Terminating...")
-
-    if amf_sub != "":
-        url = amf_sub
-        response = requests.delete(url)
-        log.info(f"AMF Subscription delete status code: {response.status_code}")
-
-    if smf_sub != "":
-        url = smf_sub
-        response = requests.delete(url)
-        log.info(f"SMF Subscription delete status code: {response.status_code}")
-    
-    if net_per_sub != "":
-        url = net_per_sub
-        response = requests.delete(url)
-        log.info(f"Network Performance Subscription delete status code: {response.status_code}")
-
-    if anomaly_sub != "":
-        url = anomaly_sub
-        response = requests.delete(url)
-        log.info(f"Anomaly Subscription delete status code: {response.status_code}")
-
-    if track_ue_sub != "":
-        url = track_ue_sub
-        response = requests.delete(url)
-        log.info(f"Track UE Location Subscription delete status code: {response.status_code}")
-
-
-signal.signal(signal.SIGTERM, terminator)
-signal.signal(signal.SIGINT, terminator)
-signal.pause()
+    app.run(host=sbi_addr, port=sbi_port, debug=False)
