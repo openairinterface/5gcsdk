@@ -134,9 +134,6 @@ sbi:
   port: 1112                # and be reachable from the core's containers
 ```
 
-`sbi.port` is only advertised to the core in the notification URIs; the handler always listens on port 1112
-(hardcoded in `app.run()`), so leave it at `1112`.
-
 `sbi.ip` is the one people get wrong. It is not a target — it is the local address Flask binds to, and it is
 also what gets advertised to the core as the notification URI. It therefore has to be an address that exists
 on the machine running the handler *and* is routable from inside the NF containers. On a Docker Compose
@@ -159,11 +156,13 @@ start_handler()        # spawns handler.py, records its PID, marks status 'on'
 check_handler_ready()  # raises AssertionError if the handler is not up and serving yet
 ...
 stop_handler()    # clears registered callbacks, terminates the handler, marks status 'off'
+                  # (the handler's SIGTERM handler attempts to delete its subscriptions on the way out)
 ```
 
-`stop_handler()` does **not** delete the AMF/SMF/NWDAF subscriptions. `handler.py` defines a SIGTERM handler
-for that, but registers it only after `app.run()`, which never returns, so it is never installed. The
-subscriptions stay on the core until the NFs are restarted.
+On SIGTERM or SIGINT, including during startup, the handler attempts to delete every AMF, SMF and NWDAF
+subscription it has created so far, in parallel, giving up on any still unanswered after 3 s, then exits.
+A deletion that times out or gets an error response, or a handler killed with `kill -9` or one that crashed,
+leaves subscriptions on the core until they are deleted externally or the NFs restart.
 
 `start_handler()` checks the recorded PID rather than trusting the status flag. If the file says `'on'` but
 that process is gone (a crash, a `kill -9`), it logs a warning and starts a new handler. If a handler really is
